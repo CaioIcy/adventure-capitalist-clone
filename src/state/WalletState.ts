@@ -1,8 +1,6 @@
 import { BaseState } from './BaseState';
 
 export class WalletState extends BaseState {
-	private money: number;
-
 	public constructor() {
 		super();
 	}
@@ -11,5 +9,9 @@ export class WalletState extends BaseState {
 		this.state.money += 69420;
 		this.save();
 		this.debug();
+	}
+
+	public get money(): number {
+		return this.state.money;
 	}
 }
