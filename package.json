@@ -10,6 +10,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "pixi-scrollbox": "^2.1.4",
+    "pixi-viewport": "^4.11.3",
     "pixi.js": "^5.2.4"
   },
   "devDependencies": {

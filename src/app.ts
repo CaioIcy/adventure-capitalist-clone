@@ -25,7 +25,7 @@ export class App {
         this.initConfigs();
         this.initStates();
 
-        this.viewStack.push(new MainView(this.viewStack, this.states));
+        this.viewStack.push(new MainView(this.viewStack, this.configs, this.states));
     }
 
     private initConfigs() {

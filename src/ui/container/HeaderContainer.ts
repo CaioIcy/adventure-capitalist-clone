@@ -9,6 +9,8 @@ export class HeaderContainer extends Container {
     }
 
     public init() : void {
+        this.width = window.innerWidth; // TODO ?
+        this.height = 156;
         this.moneyLabel.x = (window.innerWidth * 0.5) - (this.moneyLabel.width * 0.5);
         this.addChild(this.moneyLabel);
     }
