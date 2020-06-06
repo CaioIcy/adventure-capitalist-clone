@@ -21,9 +21,13 @@ export class MainView extends BaseView {
             this.states.wallet.test();
         });
         this.addChild(btn);
+
+        this.states.wallet.addObserverCallback(this, () => {
+            console.log('wallet updated');
+        });
     }
 
     protected onExit() : void {
-        // do nothing
+        this.states.wallet.removeObserverCallback(this);
     }
 }

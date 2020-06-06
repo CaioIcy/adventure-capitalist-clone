@@ -5,14 +5,10 @@ export class WalletState extends BaseState {
 
 	public constructor() {
 		super();
-
-		// this.state.money = 69420;
 	}
 
 	public test() : void {
-		this.debug();
-		this.state.money = 69420;
-		this.debug();
+		this.state.money += 69420;
 		this.save();
 		this.debug();
 	}
