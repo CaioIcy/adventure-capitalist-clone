@@ -1,5 +1,5 @@
 import { Container, Text, Sprite } from 'pixi.js';
-import { TextureUtil } from './TextureUtil';
+import { TextureUtil } from '../../util/TextureUtil';
 
 export class Button extends Container {
     private text: Text;

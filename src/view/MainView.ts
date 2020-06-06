@@ -1,8 +1,8 @@
 import { Text } from 'pixi.js';
 import { BaseView } from './BaseView';
 import { ViewStack } from './ViewStack';
-import { Button } from './Button';
-import { StateController } from './state/StateController';
+import { Button } from '../ui/component/Button';
+import { StateController } from '../state/StateController';
 
 export class MainView extends BaseView {
     private states: StateController;

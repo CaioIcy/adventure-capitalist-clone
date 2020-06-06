@@ -1,7 +1,7 @@
 import { Application } from 'pixi.js';
 import { StateController } from './state/StateController';
-import { ViewStack } from './ViewStack';
-import { MainView } from './MainView';
+import { ViewStack } from './view/ViewStack';
+import { MainView } from './view/MainView';
 
 export class App {
     private app : Application;
