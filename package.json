@@ -1,0 +1,22 @@
+{
+  "name": "adventure-capitalist-clone",
+  "version": "1.0.0",
+  "description": "---",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "release": "webpack"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "pixi.js": "^5.2.4"
+  },
+  "devDependencies": {
+    "ts-loader": "^7.0.4",
+    "typescript": "^3.9.3",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.11.0"
+  }
+}
