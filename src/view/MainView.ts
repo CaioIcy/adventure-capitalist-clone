@@ -20,7 +20,7 @@ export class MainView extends BaseView {
         this.addChild(this.header);
 
         const btn = new Button('test state', () => {
-            this.states.wallet.test();
+            this.states.wallet.addMoneyDelta(100000);
         });
         this.addChild(btn);
 

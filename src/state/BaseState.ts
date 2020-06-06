@@ -2,15 +2,21 @@ export interface StateCallback {
     (): void;
 }
 
-export class BaseState {
+export abstract class BaseState {
 	private observers : {[key: string]: StateCallback};
 	protected state : {[key: string]: any};
 
 	public constructor() {
 		this.state = {};
 		this.observers = {};
-		this.load();
+		const loaded = this.load();
+		if(!loaded) {
+			this.initializeState();
+			this.save(false);
+		}
 	}
+
+	protected abstract initializeState(): void;
 
 	public addObserverCallback(obj: any, cb: StateCallback) : void {
 		this.observers[obj.constructor.name] = cb;
@@ -26,18 +32,23 @@ export class BaseState {
 		}
 	}
 
-	public save() : void {
+	public save(shouldNotify: boolean = true) : void {
 		const key = this.storageKey();
 		window.localStorage.setItem(key, JSON.stringify(this.state));
-		this.notify();
+		if(shouldNotify) {
+			this.notify();
+		}
 	}
 
-	public load() : void {
+	public load() : boolean { // returns true if loaded something from storage
 		const key = this.storageKey();
 		const loadedState = window.localStorage.getItem(key);
 		if (loadedState !== null) {
 			this.state = JSON.parse(loadedState);
+			return true;
 		}
+
+		return false;
 	}
 
 	private storageKey() : string {
