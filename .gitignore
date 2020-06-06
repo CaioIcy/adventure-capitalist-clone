@@ -26,3 +26,5 @@ docs/
 
 # jetBrains IDE ignores
 .idea
+
+*.local

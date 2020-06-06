@@ -1,17 +1,26 @@
 import { Text } from 'pixi.js';
 import { BaseView } from './BaseView';
 import { ViewStack } from './ViewStack';
-// import { Button } from './Button';
+import { Button } from './Button';
+import { StateController } from './state/StateController';
 
 export class MainView extends BaseView {
-    public constructor(viewStack : ViewStack) {
+    private states: StateController;
+
+    public constructor(viewStack : ViewStack, states : StateController) {
         super(viewStack);
+        this.states = states;
     }
 
     protected onEnter() : void {
         const title = new Text('Adventure Capitalist Clone');
         title.x = (window.innerWidth * 0.5) - (title.width * 0.5);
         this.addChild(title);
+
+        const btn = new Button('test state', () => {
+            this.states.wallet.test();
+        });
+        this.addChild(btn);
     }
 
     protected onExit() : void {
