@@ -1,6 +1,7 @@
 import { Container, Text, Sprite } from 'pixi.js';
 import { ProgressBar } from './ProgressBar';
 import { TextureUtil } from '../../util/TextureUtil';
+import { TimeUtil } from '../../util/TimeUtil';
 
 // states: Locked vs Unlocked
 // Locked: purchaseable or not
@@ -54,7 +55,9 @@ class LockedBusinessCell extends Container {
 class UnlockedBusinessCell extends Container {
     private businessSprite: Sprite;
     private text: Text;
-    private progressBar: ProgressBar;
+    private upgradeProgressBar: ProgressBar;
+    private workProgressBar: ProgressBar;
+    private timeToProfitLabel: Text;
 
     public constructor() {
         super();
@@ -72,21 +75,39 @@ class UnlockedBusinessCell extends Container {
         this.businessSprite.height = 128;
         this.addChild(this.businessSprite);
 
-        this.progressBar = new ProgressBar({
+        this.upgradeProgressBar = new ProgressBar({
             width: 128,
             height: 32,
         });
-        this.addChild(this.progressBar);
+        this.addChild(this.upgradeProgressBar);
 
         this.text = new Text('businesscell');
         this.text.x = 560/2;
+        this.text.y = 128-this.text.height;
         this.addChild(this.text);
+
+        this.workProgressBar = new ProgressBar({
+            width: 432,
+            height: 48,
+        })
+        this.workProgressBar.x = 128;
+        this.addChild(this.workProgressBar);
+
+        this.timeToProfitLabel = new Text('?????');
+        this.timeToProfitLabel.y = 32;
+        this.addChild(this.timeToProfitLabel);
     }
 
-    public setup(workAction: ()=>void): void {
+    public setup(cost: number, workAction: ()=>void): void {
+        this.text.text = `cost=$ ${cost.toFixed(2)}`;
+
         this.businessSprite.interactive = true;
         this.businessSprite.buttonMode = true;
         this.businessSprite.on('pointerdown', workAction); // TODO clear before?
+    }
+
+    public setTimeToProfit(ts: string): void {
+        this.timeToProfitLabel.text = ts;
     }
 }
 
@@ -107,12 +128,17 @@ export class BusinessCell extends Container {
         this.locked.setup(businessName, unlockPrice, action);
     }
 
-    public setupUnlocked(workAction: ()=>void): void {
+    public setupUnlocked(cost: number, workAction: ()=>void): void {
         if(this.unlocked === null) {
             this.locked?.destroy();
             this.unlocked = new UnlockedBusinessCell();
             this.addChild(this.unlocked);
         }
-        this.unlocked.setup(workAction);
+        this.unlocked.setup(cost, workAction);
+    }
+
+    public setTimeToProfit(ts: number): void {
+        console.assert(this.unlocked !== null, 'should be unlocked');
+        this.unlocked.setTimeToProfit(TimeUtil.secondsToString(ts));
     }
 }

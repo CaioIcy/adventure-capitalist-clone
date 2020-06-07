@@ -3,7 +3,8 @@ import { BusinessConfig } from '../config/BusinessConfig';
 
 export interface Business {
 	id: string;
-	level: number;
+	amount: number;
+	workTimestamp: number;
 }
 
 export class BusinessState extends BaseState {
@@ -34,11 +35,22 @@ export class BusinessState extends BaseState {
 		return this.businesses[id];
 	}
 
+	public isWorking(id: string): boolean {
+		return this.businesses[id].workTimestamp > 0;
+	}
+
+	public setWorkTimestamp(id: string, timestamp: number): void {
+		console.assert(this.hasUnlockedBusiness(id), 'business not unlocked');
+		this.businesses[id].workTimestamp = timestamp;
+		this.save();
+	}
+
 	public unlockBusiness(id: string) : void {
 		console.assert(!this.hasUnlockedBusiness(id), 'business already unlocked');
 		console.assert(this.config.isValidBusiness(id), 'invalid business id');
 		this.state.businesses[id] = {
-			level: 0,
+			amount: 1,
+			workTimestamp: -1,
 			id,
 		};
 		this.save();
