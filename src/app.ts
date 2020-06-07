@@ -13,7 +13,8 @@ export class App {
     public constructor() {
         this.app = new Application({
             backgroundColor: 0x736b66,
-            resolution: 1, // window.devicePixelRatio || 
+            resolution: 1,
+            // resolution: window.devicePixelRatio,
         });
         this.viewStack = new ViewStack(this.app.stage);
     }

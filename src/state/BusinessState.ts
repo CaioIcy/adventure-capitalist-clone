@@ -26,6 +26,7 @@ export class BusinessState extends BaseState {
 	}
 
 	public hasUnlockedBusiness(id: string) : boolean {
+		console.assert(this.config.isValidBusiness(id), 'invalid business id');
 		return !!this.getBusiness(id);
 	}
 
