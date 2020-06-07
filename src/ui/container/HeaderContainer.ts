@@ -16,6 +16,6 @@ export class HeaderContainer extends Container {
     }
 
     public setMoney(money: number) : void {
-        this.moneyLabel.text = `$ ${money}`;
+        this.moneyLabel.text = `$ ${money.toFixed(2)}`;
     }
 }

@@ -11,4 +11,8 @@ export class TimeUtil {
         }
         return `${seconds.toFixed(0)}s`;
     }
+
+    public static nowS(): number {
+        return Date.now() / 1000;
+    }
 }

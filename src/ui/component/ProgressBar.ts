@@ -8,7 +8,7 @@ export interface ProgressBarOptions {
 
 export class ProgressBar extends Container {
     private progress: Sprite;
-    private text: Text;
+    private label: Text;
 
     private pad: number = 2;
 
@@ -33,10 +33,13 @@ export class ProgressBar extends Container {
         this.addChild(this.progress);
         this.setProgress(0.33);
 
-        this.text = new Text('01/25', {
+        this.label = new Text('', {
             fill: 'white',
+            stroke: 'black',
+            strokeThickness: 3,
         });
-        this.addChild(this.text);
+        this.addChild(this.label);
+        this.setText('TODO');
     }
 
     public setProgress(progress: number): void {
@@ -44,6 +47,8 @@ export class ProgressBar extends Container {
     }
 
     public setText(text: string): void {
-        this.text.text = text;
+        this.label.text = text;
+        this.label.x = this.width * 0.5 - this.label.width * 0.5;
+        this.label.y = this.height * 0.5 - this.label.height * 0.5;
     }
 }

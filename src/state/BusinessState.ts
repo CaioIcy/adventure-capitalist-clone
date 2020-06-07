@@ -55,4 +55,12 @@ export class BusinessState extends BaseState {
 		};
 		this.save();
 	}
+
+	public upgradeBusiness(id: string, byAmount: number): void {
+		console.assert(this.hasUnlockedBusiness(id), 'business not unlocked');
+		console.assert(byAmount > 0, 'byAmount should be positive');
+		const business = this.getBusiness(id);
+		business.amount += byAmount;
+		this.save();
+	}
 }

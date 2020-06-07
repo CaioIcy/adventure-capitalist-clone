@@ -2,6 +2,7 @@ import { Text, Ticker } from 'pixi.js';
 import { Scrollbox } from 'pixi-scrollbox'
 import { BaseView } from './BaseView';
 import { ViewStack } from './ViewStack';
+import { TimeUtil } from '../util/TimeUtil';
 import { Button } from '../ui/component/Button';
 import { BusinessCell } from '../ui/component/BusinessCell';
 import { HeaderContainer } from '../ui/container/HeaderContainer';
@@ -27,15 +28,22 @@ export class MainView extends BaseView {
         this.header.init();
         this.addChild(this.header);
 
-        const btn = new Button('test state', () => {
+        const btn = new Button('reset', () => {
+            console.log('clear local storage')
             localStorage.clear();
         });
         this.addChild(btn);
 
+        const btn2 = new Button('+$1000', () => {
+            this.states.wallet.addMoneyDelta(1000);
+        });
+        btn2.x = btn.width*1.5;
+        this.addChild(btn2);
+
         this.states.wallet.addObserverCallback(this, ()=>this.onWalletStateUpdate());
         this.onWalletStateUpdate();
 
-        const padding = 4;
+        const padding = 8;
         let y = this.header.height + padding;
         this.scroll = new Scrollbox({
             boxWidth: window.innerWidth * 0.95,
@@ -70,9 +78,17 @@ export class MainView extends BaseView {
         if(this.states.business.hasUnlockedBusiness(id)) {
             const business = this.states.business.businesses[id];
             const cost = this.configs.business.getCost(id, business.amount, 1);
-            cell.setupUnlocked(cost, () => {
-                this.workBusiness(cellIndex, id);
-            });
+            const profit = this.configs.business.getProfit(id, business.amount);
+            const nextMilestone = this.configs.business.getNextMilestone(business.amount);
+            console.log(nextMilestone);
+            cell.setupUnlocked(business.amount, nextMilestone, cost, profit,
+                () => {
+                    this.workBusiness(cellIndex, id);
+                },
+                () => {
+                    this.tryUpgradeBusiness(cellIndex, id);
+                }
+            );
         } else {
             cell.setupLocked(cfg.name, this.configs.business.getCost(id, 0, 1), () => {
                 this.tryUnlockBusiness(cellIndex, id);
@@ -85,7 +101,7 @@ export class MainView extends BaseView {
     }
 
     private update() : void {
-        const now = Date.now() / 1000;
+        const now = TimeUtil.nowS();
         let cellIndex = 0;
         const businessIDs = this.configs.business.getBusinessIDs();
 
@@ -103,19 +119,21 @@ export class MainView extends BaseView {
                 continue;
             }
 
-            console.log('working Business=' + id);
             const cell = this.businessCells[i];
             const business = this.states.business.getBusiness(id);
+            const timeToProfit = this.configs.business.getTimeToProfit(id, business.amount);
 
-            if(now > this.states.business.businesses[id].workTimestamp) {
-                console.log('finished working Business=' + id);
+            if(now > this.states.business.businesses[id].workTimestamp) { // finished working
                 this.states.business.setWorkTimestamp(id, -1);
-                const profit = this.configs.business.getProfit(id);
+                const profit = this.configs.business.getProfit(id, business.amount);
                 this.states.wallet.addMoneyDelta(profit);
 
-                const timeToProfit = this.configs.business.getTimeToProfit(id, business.amount);
+                cell.setProfitProgress(0);
                 cell.setTimeToProfit(timeToProfit);
-            } else {
+            }
+            else { // still working
+                const progress = 1.0 - ((business.workTimestamp - now) / timeToProfit);
+                cell.setProfitProgress(progress);
                 cell.setTimeToProfit(business.workTimestamp - now);
             }
         }
@@ -126,14 +144,14 @@ export class MainView extends BaseView {
     }
 
     private workBusiness(cellIndex: number, businessID: string): void {
-        const business = this.states.business.businesses[businessID];
+        const business = this.states.business.getBusiness(businessID);
         if(this.states.business.isWorking(businessID)) {
             // already working
             return;
         }
 
         console.log('workBusiness=' + businessID);
-        const now = Date.now() / 1000;
+        const now = TimeUtil.nowS();
         const timeToProfit = this.configs.business.getTimeToProfit(businessID, business.amount);
         this.states.business.setWorkTimestamp(businessID, now + timeToProfit);
     }
@@ -150,6 +168,26 @@ export class MainView extends BaseView {
 
         this.states.wallet.addMoneyDelta(-cost);
         this.states.business.unlockBusiness(businessID);
+
+        const cell = this.businessCells[cellIndex];
+        this.updateBusinessCell(cellIndex);
+    }
+
+    private tryUpgradeBusiness(cellIndex: number, businessID: string): void {
+        console.assert(this.states.business.hasUnlockedBusiness(businessID), 'needs unlocked business');
+        console.log('tryUpgradeBusiness=' + businessID);
+
+        const byAmount = 1; // TODO
+        const business = this.states.business.getBusiness(businessID);
+        const cost = this.configs.business.getCost(businessID, business.amount, byAmount);
+        if(cost > this.states.wallet.money) {
+            // TODO notify can't buy
+            console.log('not enough money');
+            return;
+        }
+
+        this.states.wallet.addMoneyDelta(-cost);
+        this.states.business.upgradeBusiness(businessID, byAmount);
 
         const cell = this.businessCells[cellIndex];
         this.updateBusinessCell(cellIndex);

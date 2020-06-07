@@ -10,11 +10,11 @@ export class BusinessConfig extends BaseConfig {
 			businesses: {
 				'business-0': {
 					name: 'Lemonade Stand',
+					autoUnlocked: true,
 					initialCost: 3.738,
 					coefficient: 1.07,
 					initialTime: 0.6,
 					initialRevenue: 1,
-					initialProductivity: 1.67,
 				},
 				'business-1': {
 					name: 'Newspaper Delivery',
@@ -22,7 +22,6 @@ export class BusinessConfig extends BaseConfig {
 					coefficient: 1.15,
 					initialTime: 3,
 					initialRevenue: 60,
-					initialProductivity: 20,
 				},
 				'business-2': {
 					name: 'Car Wash',
@@ -30,7 +29,6 @@ export class BusinessConfig extends BaseConfig {
 					coefficient: 1.14,
 					initialTime: 6,
 					initialRevenue: 540,
-					initialProductivity: 90,
 				},
 				'business-3': {
 					name: 'Pizza Delivery',
@@ -38,7 +36,6 @@ export class BusinessConfig extends BaseConfig {
 					coefficient: 1.13,
 					initialTime: 12,
 					initialRevenue: 4320,
-					initialProductivity: 360,
 				},
 				'business-4': {
 					name: 'Donut Shop',
@@ -46,7 +43,6 @@ export class BusinessConfig extends BaseConfig {
 					coefficient: 1.12,
 					initialTime: 24,
 					initialRevenue: 51840,
-					initialProductivity: 2160,
 				},
 				'business-5': {
 					name: 'Shrimp Boat',
@@ -54,7 +50,6 @@ export class BusinessConfig extends BaseConfig {
 					coefficient: 1.11,
 					initialTime: 96,
 					initialRevenue: 622080,
-					initialProductivity: 6480,
 				},
 				'business-6': {
 					name: 'Hockey Team',
@@ -62,7 +57,6 @@ export class BusinessConfig extends BaseConfig {
 					coefficient: 1.10,
 					initialTime: 384,
 					initialRevenue: 7464960,
-					initialProductivity: 19440,
 				},
 				'business-7': {
 					name: 'Movie Studio',
@@ -70,7 +64,6 @@ export class BusinessConfig extends BaseConfig {
 					coefficient: 1.09,
 					initialTime: 1536,
 					initialRevenue: 89579520,
-					initialProductivity: 58320,
 				},
 				'business-8': {
 					name: 'Bank',
@@ -78,7 +71,6 @@ export class BusinessConfig extends BaseConfig {
 					coefficient: 1.08,
 					initialTime: 6144,
 					initialRevenue: 1074954240,
-					initialProductivity: 174960,
 				},
 				'business-9': {
 					name: 'Oil Company',
@@ -86,7 +78,6 @@ export class BusinessConfig extends BaseConfig {
 					coefficient: 1.07,
 					initialTime: 36864,
 					initialRevenue: 29668737024,
-					initialProductivity: 804816,
 				},
 			},
 		};
@@ -100,7 +91,7 @@ export class BusinessConfig extends BaseConfig {
 	public getCost(id: string, currentAmount: number, amountToBuy: number): number {
 		console.assert(this.isValidBusiness(id), 'invalid business id');
 		const cfg = this.getBusinessConfig(id);
-		const cost = (cfg.initialCost * Math.pow(cfg.coefficient, (currentAmount+amountToBuy)-1));
+		const cost = cfg.initialCost * Math.pow(cfg.coefficient, (currentAmount+amountToBuy)-1);
 		return cost;
 	}
 
@@ -108,7 +99,7 @@ export class BusinessConfig extends BaseConfig {
 		console.assert(this.isValidBusiness(id), 'invalid business id');
 		const cfg = this.getBusinessConfig(id);
 		let multiplier = 1;
-		for(let i = 0; i < this.config.milestones; ++i) {
+		for(let i = 0; i < this.config.milestones.length; ++i) {
 			const milestone = this.config.milestones[i];
 			if(currentAmount < milestone) {
 				break;
@@ -118,8 +109,26 @@ export class BusinessConfig extends BaseConfig {
 		return cfg.initialTime * multiplier;
 	}
 
-	public getProfit(id: string): number {
-		return 69;
+	public getNextMilestone(amount: number): number {
+		for(let i = 0; i < this.config.milestones.length; ++i) {
+			const milestone = this.config.milestones[i];
+			if(amount < milestone) {
+				return milestone;
+			}
+		}
+		return this.config.milestones[this.config.milestones.length - 1];
+	}
+
+	public getRevenue(id: string, currentAmount: number): number {
+		const cfg = this.getBusinessConfig(id);
+		return cfg.initialRevenue * currentAmount; // TODO multiplier
+	}
+
+	public getProfit(id: string, currentAmount: number): number {
+		const cfg = this.getBusinessConfig(id);
+		const revenue = this.getRevenue(id, currentAmount);
+		const ttp = this.getTimeToProfit(id, currentAmount);
+		return Math.ceil(revenue / ttp);
 	}
 
 	public getBusinessIDs() : string[] {
@@ -127,12 +136,10 @@ export class BusinessConfig extends BaseConfig {
 	}
 
 	public getInitialBusinessIDs(): string[] {
-		// TODO
-		return ['business-0'];
+		return this.getBusinessIDs().filter(id => !!this.getBusinessConfig(id).autoUnlocked);
 	}
 
 	public isValidBusiness(id: string): boolean {
-		// TODO id must be contained in config
-		return true;
+		return this.getBusinessIDs().includes(id);
 	}
 }
