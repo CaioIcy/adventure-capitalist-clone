@@ -10,6 +10,7 @@ export class BusinessConfig extends BaseConfig {
 			businesses: {
 				'business-0': {
 					name: 'Lemonade Stand',
+					image: 'assets/business/Lemonade_Stand.png',
 					autoUnlocked: true,
 					initialCost: 3.738,
 					coefficient: 1.07,
@@ -18,6 +19,7 @@ export class BusinessConfig extends BaseConfig {
 				},
 				'business-1': {
 					name: 'Newspaper Delivery',
+					image: 'assets/business/Newspaper_Delivery.png',
 					initialCost: 60,
 					coefficient: 1.15,
 					initialTime: 3,
@@ -25,6 +27,7 @@ export class BusinessConfig extends BaseConfig {
 				},
 				'business-2': {
 					name: 'Car Wash',
+					image: 'assets/business/Car_Wash.png',
 					initialCost: 720,
 					coefficient: 1.14,
 					initialTime: 6,
@@ -32,6 +35,7 @@ export class BusinessConfig extends BaseConfig {
 				},
 				'business-3': {
 					name: 'Pizza Delivery',
+					image: 'assets/business/Pizza_Delivery.png',
 					initialCost: 8640,
 					coefficient: 1.13,
 					initialTime: 12,
@@ -39,6 +43,7 @@ export class BusinessConfig extends BaseConfig {
 				},
 				'business-4': {
 					name: 'Donut Shop',
+					image: 'assets/business/Donut_Shop.png',
 					initialCost: 103680,
 					coefficient: 1.12,
 					initialTime: 24,
@@ -46,6 +51,7 @@ export class BusinessConfig extends BaseConfig {
 				},
 				'business-5': {
 					name: 'Shrimp Boat',
+					image: 'assets/business/Shrimp_Boat.png',
 					initialCost: 1244160,
 					coefficient: 1.11,
 					initialTime: 96,
@@ -53,6 +59,7 @@ export class BusinessConfig extends BaseConfig {
 				},
 				'business-6': {
 					name: 'Hockey Team',
+					image: 'assets/business/Hockey_Team.png',
 					initialCost: 14929920,
 					coefficient: 1.10,
 					initialTime: 384,
@@ -60,6 +67,7 @@ export class BusinessConfig extends BaseConfig {
 				},
 				'business-7': {
 					name: 'Movie Studio',
+					image: 'assets/business/Movie_Studio.png',
 					initialCost: 179159040,
 					coefficient: 1.09,
 					initialTime: 1536,
@@ -67,6 +75,7 @@ export class BusinessConfig extends BaseConfig {
 				},
 				'business-8': {
 					name: 'Bank',
+					image: 'assets/business/Bank.png',
 					initialCost: 2149908480,
 					coefficient: 1.08,
 					initialTime: 6144,
@@ -74,6 +83,7 @@ export class BusinessConfig extends BaseConfig {
 				},
 				'business-9': {
 					name: 'Oil Company',
+					image: 'assets/business/Oil_Company.png',
 					initialCost: 25798901760,
 					coefficient: 1.07,
 					initialTime: 36864,
@@ -81,6 +91,13 @@ export class BusinessConfig extends BaseConfig {
 				},
 			},
 		};
+	}
+
+	public loadImages(loaderFunc: (id:string, url:string)=>void): void {
+		for(const bid in this.config.businesses) {
+			const cfg = this.getBusinessConfig(bid);
+			loaderFunc(bid, cfg.image);
+		}
 	}
 
 	public getBusinessConfig(id: string): any { // TODO interface

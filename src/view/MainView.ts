@@ -1,4 +1,4 @@
-import { Text, Ticker } from 'pixi.js';
+import { Loader, Text, Ticker } from 'pixi.js';
 import { Scrollbox } from 'pixi-scrollbox'
 import { BaseView } from './BaseView';
 import { ViewStack } from './ViewStack';
@@ -58,6 +58,27 @@ export class MainView extends BaseView {
             const cell = new BusinessCell();
             this.businessCells.push(cell);
 
+            const businessIDs = this.configs.business.getBusinessIDs();
+            const id = businessIDs[i];
+            const businessTexture = Loader.shared.resources[id].texture;
+            const managerTexture = Loader.shared.resources[this.configs.manager.getBusinessMainManagerID(id)].texture;
+            const cfg = this.configs.business.getBusinessConfig(id);
+            if(this.states.business.hasUnlockedBusiness(id)) {
+                cell.setupUnlocked(businessTexture, managerTexture,
+                    () => {
+                        // TODO block click if manager available;
+                        this.workBusiness(i, id);
+                    },
+                    () => {
+                        this.tryUpgradeBusiness(i, id);
+                    }
+                );
+            } else {
+                cell.setupLocked(businessTexture, cfg.name, this.configs.business.getCost(id, 0, 1), () => {
+                    this.tryUnlockBusiness(i, id);
+                });
+            }
+
             this.updateBusinessCell(i);
 
             this.scroll.content.addChild(cell);
@@ -75,24 +96,18 @@ export class MainView extends BaseView {
         const id = businessIDs[cellIndex];
         const cfg = this.configs.business.getBusinessConfig(id);
         const cell = this.businessCells[cellIndex];
+        const texture = Loader.shared.resources[id].texture;
         if(this.states.business.hasUnlockedBusiness(id)) {
             const business = this.states.business.businesses[id];
             const cost = this.configs.business.getCost(id, business.amount, 1);
             const profit = this.configs.business.getProfit(id, business.amount);
             const nextMilestone = this.configs.business.getNextMilestone(business.amount);
-            console.log(nextMilestone);
-            cell.setupUnlocked(business.amount, nextMilestone, cost, profit,
-                () => {
-                    this.workBusiness(cellIndex, id);
-                },
-                () => {
-                    this.tryUpgradeBusiness(cellIndex, id);
-                }
-            );
+            cell.updateUnlocked(business.amount, nextMilestone, cost, profit, this.states.manager.hasUnlockedManager(this.configs.manager.getBusinessMainManagerID(id)));
+
+            const timeToProfit = this.configs.business.getTimeToProfit(id, business.amount);
+            cell.setTimeToProfit(timeToProfit);
         } else {
-            cell.setupLocked(cfg.name, this.configs.business.getCost(id, 0, 1), () => {
-                this.tryUnlockBusiness(cellIndex, id);
-            });
+            // nothing to update on locked cell
         }
     }
 
@@ -101,15 +116,36 @@ export class MainView extends BaseView {
     }
 
     private update() : void {
-        const now = TimeUtil.nowS();
         let cellIndex = 0;
         const businessIDs = this.configs.business.getBusinessIDs();
 
+        // manager auto-work setup
         for(let i = 0; i < businessIDs.length; ++i) {
-            // TODO
-            // if not working && has manager, mark to work
+            const businessID = businessIDs[i];
+            if(!this.states.business.hasUnlockedBusiness(businessID)) {
+                continue;
+            }
+
+            if(this.states.business.isWorking(businessID)) {
+                continue;
+            }
+
+            let hasManager = false;
+            const businessManagerIDs = this.configs.manager.getBusinessManagerIDs(businessID);
+            for(const managerID of businessManagerIDs) {
+                if(this.states.manager.hasUnlockedManager(managerID)) {
+                    hasManager = true;
+                    break;
+                }
+            }
+
+            if(hasManager) {
+                this.workBusiness(i, businessID);
+            }
         }
 
+        // update work progress
+        const now = TimeUtil.nowS();
         for(let i = 0; i < businessIDs.length; ++i) {
             const id = businessIDs[i];
             if(!this.states.business.hasUnlockedBusiness(id)) {
@@ -150,7 +186,6 @@ export class MainView extends BaseView {
             return;
         }
 
-        console.log('workBusiness=' + businessID);
         const now = TimeUtil.nowS();
         const timeToProfit = this.configs.business.getTimeToProfit(businessID, business.amount);
         this.states.business.setWorkTimestamp(businessID, now + timeToProfit);
@@ -169,7 +204,7 @@ export class MainView extends BaseView {
         this.states.wallet.addMoneyDelta(-cost);
         this.states.business.unlockBusiness(businessID);
 
-        const cell = this.businessCells[cellIndex];
+        // TODO cell does not have unlocked state setup'd
         this.updateBusinessCell(cellIndex);
     }
 

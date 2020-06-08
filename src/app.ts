@@ -1,4 +1,4 @@
-import { Application } from 'pixi.js';
+import { Application, Loader, settings, SCALE_MODES } from 'pixi.js';
 import { ConfigController } from './config/ConfigController';
 import { StateController } from './state/StateController';
 import { ViewStack } from './view/ViewStack';
@@ -22,11 +22,30 @@ export class App {
     public start() {
         document.body.appendChild(this.app.view);
         this.app.renderer.resize(window.innerWidth, window.innerHeight);
+        settings.SCALE_MODE = SCALE_MODES.NEAREST;
 
         this.initConfigs();
-        this.initStates();
+        this.initLoader(() => {
+            console.log('completed loading');
+            this.initStates();
+            this.viewStack.push(new MainView(this.viewStack, this.configs, this.states));
+        });
+    }
 
-        this.viewStack.push(new MainView(this.viewStack, this.configs, this.states));
+    private initLoader(completion: ()=>void) {
+        const loader = Loader.shared;
+        loader.onComplete.add(completion);
+
+        this.configs.business.loadImages((id, url) => {
+            loader.add(id, url);
+        });
+        this.configs.manager.loadImages((id, url) => {
+            loader.add(id, url);
+        });
+
+        loader.load((loader, resources) => {
+            // nothing
+        });
     }
 
     private initConfigs() {
@@ -44,6 +63,9 @@ export class App {
 
         for(const initialBusinessID of this.configs.business.getInitialBusinessIDs()) {
             this.states.business.unlockBusiness(initialBusinessID);
+        }
+        for(const initialManagerID of this.configs.manager.getInitialManagerIDs()) {
+            this.states.manager.unlockManager(initialManagerID);
         }
 
         this.states.game.markInitialized();

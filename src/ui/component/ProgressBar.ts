@@ -31,7 +31,7 @@ export class ProgressBar extends Container {
         this.progress.y = this.pad;
         this.progress.height = height-this.pad*2;
         this.addChild(this.progress);
-        this.setProgress(0.33);
+        this.setProgress(0.0);
 
         this.label = new Text('', {
             fill: 'white',
