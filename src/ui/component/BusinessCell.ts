@@ -3,6 +3,7 @@ import { ManagerCell } from './ManagerCell';
 import { ProgressBar } from './ProgressBar';
 import { TextureUtil } from '../../util/TextureUtil';
 import { TimeUtil } from '../../util/TimeUtil';
+import { MoneyUtil } from '../../util/MoneyUtil';
 
 const BWIDTH = 496;
 const BHEIGHT = 128;
@@ -53,7 +54,7 @@ class UpgradeButton extends Container {
     }
 
     public setCost(costText: string): void {
-        this.costLabel.text = `$${costText}`;
+        this.costLabel.text = costText;
         this.costLabel.updateTransform();
         this.costLabel.x = this.width - this.costLabel.width * 1.5; // TODO ?
         this.costLabel.y = this.height - this.costLabel.height;
@@ -96,11 +97,11 @@ class LockedBusinessCell extends Container {
         this.addChild(this.unlockPriceLabel);
     }
 
-    public setup(tex: Texture, businessName: string, unlockPrice: number, action: ()=>void): void {
+    public setup(tex: Texture, businessName: string, unlockPriceStr: string, action: ()=>void): void {
         this.businessSprite.texture = tex;
 
         this.businessNameLabel.text = businessName;
-        this.unlockPriceLabel.text = `$ ${unlockPrice}`;
+        this.unlockPriceLabel.text = unlockPriceStr;
 
         this.background.interactive = true;
         this.background.buttonMode = true;
@@ -180,18 +181,19 @@ class UnlockedBusinessCell extends Container {
         this.upgradeButton.setCallback(upgradeAction);
     }
 
-    public update(currentAmount: number, nextMilestone: number, cost: number, profit: number, hasManager: boolean): void {
+    public update(buyAmountStr: string, currentAmount: number, nextMilestone: number, cost: number, profit: number, hasManager: boolean): void {
         this.upgradeProgressBar.setText(`${currentAmount}/${nextMilestone}`);
         this.upgradeProgressBar.setProgress(currentAmount/nextMilestone);
 
-        this.upgradeButton.setCost(cost.toFixed(2));
-        this.setProfit(profit.toFixed(2));
+        this.upgradeButton.setAmount(buyAmountStr)
+        this.upgradeButton.setCost(MoneyUtil.moneyToString(cost));
+        this.setProfit(MoneyUtil.moneyToString(profit));
 
         this.managerCell.enableGreyscaleFilter(!hasManager);
     }
 
     public setProfit(profitText: string): void {
-        this.workProgressBar.setText(`$${profitText}`);
+        this.workProgressBar.setText(profitText);
     }
 
     public setTimeToProfit(text: string): void {
@@ -214,7 +216,7 @@ export class BusinessCell extends Container {
             this.locked = new LockedBusinessCell();
             this.addChild(this.locked);
         }
-        this.locked.setup(businessTexture, businessName, unlockPrice, action);
+        this.locked.setup(businessTexture, businessName, MoneyUtil.moneyToString(unlockPrice), action);
     }
 
     public setupUnlocked(businessTexture: Texture, managerTexture: Texture, workAction: ()=>void, upgradeAction: ()=>void): void {
@@ -226,9 +228,9 @@ export class BusinessCell extends Container {
         this.unlocked.setup(businessTexture, managerTexture, workAction, upgradeAction);
     }
 
-    public updateUnlocked(currentAmount: number, nextMilestone: number, cost: number, profit: number, hasManager: boolean): void {
+    public updateUnlocked(buyAmountStr: string, currentAmount: number, nextMilestone: number, cost: number, profit: number, hasManager: boolean): void {
         console.assert(this.unlocked !== null, 'should be unlocked');
-        this.unlocked.update(currentAmount, nextMilestone, cost, profit, hasManager);
+        this.unlocked.update(buyAmountStr, currentAmount, nextMilestone, cost, profit, hasManager);
     }
 
     public setTimeToProfit(ts: number): void {

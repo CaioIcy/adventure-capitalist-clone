@@ -1,4 +1,5 @@
 import { Container, Text } from 'pixi.js';
+import { MoneyUtil } from '../../util/MoneyUtil';
 
 export class HeaderContainer extends Container {
     private moneyLabel: Text;
@@ -16,6 +17,6 @@ export class HeaderContainer extends Container {
     }
 
     public setMoney(money: number) : void {
-        this.moneyLabel.text = `$ ${money.toFixed(2)}`;
+        this.moneyLabel.text = MoneyUtil.moneyToString(money);
     }
 }

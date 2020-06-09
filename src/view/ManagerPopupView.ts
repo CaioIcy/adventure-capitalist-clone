@@ -63,7 +63,7 @@ class ManagerPopupVieww extends Container {
     }
 
     public setCost(costText: string): void {
-        this.costLabel.text = `$${costText}`;
+        this.costLabel.text = costText;
         this.costLabel.updateTransform();
         this.costLabel.x = this.width*0.5 - this.costLabel.width * 0.5;
         this.costLabel.y = this.height*0.5 - this.costLabel.height * 0.5;
@@ -90,7 +90,7 @@ export class ManagerPopupView extends BaseView {
         this.addChild(this.managerPopupVieww);
 
         const cost = this.configs.manager.getCost(this.managerID);
-        this.managerPopupVieww.setCost(MoneyUtil.costToString(cost));
+        this.managerPopupVieww.setCost(MoneyUtil.moneyToString(cost));
 
         this.managerPopupVieww.closeAction = () => { this.close(); };
         this.managerPopupVieww.buyAction = () => { this.buy(); };

@@ -1,4 +1,4 @@
-import { Loader, Text, Ticker } from 'pixi.js';
+import { Loader, Text, Ticker, Container } from 'pixi.js';
 import { Scrollbox } from 'pixi-scrollbox'
 import { BaseView } from './BaseView';
 import { ViewStack } from './ViewStack';
@@ -10,13 +10,47 @@ import { HeaderContainer } from '../ui/container/HeaderContainer';
 import { ConfigController } from '../config/ConfigController';
 import { StateController } from '../state/StateController';
 
+// TODO move
+class BuyAmountToggle extends Container {
+    private label: Text;
+
+    public constructor(onToggleAction: ()=>void) {
+        super();
+
+        this.label = new Text('x?');
+        this.addChild(this.label);
+        this.setClickCallback(onToggleAction);
+    }
+
+    public setClickCallback(action: ()=>void): void {
+        this.label.interactive = true;
+        this.label.buttonMode = true;
+        this.label.removeAllListeners();
+        this.label.on('pointerdown', action);
+    }
+
+    public setText(text: string): void {
+        this.label.text = text;
+    }
+}
+
+enum BuyAmountType {
+    One,
+    Ten,
+    Hundred,
+    Max, // TODO max impl
+}
+
 export class MainView extends BaseView {
     private configs: ConfigController;
     private states: StateController;
-    private header: HeaderContainer;
+    private buyAmountType: BuyAmountType = BuyAmountType.One;
 
+    // TOOD view
+    private header: HeaderContainer; // TODO move to view?
     private scroll: Scrollbox;
     private businessCells: BusinessCell[] = [];
+    private buyAmountToggle: BuyAmountToggle;
 
     public constructor(viewStack : ViewStack, configs: ConfigController, states : StateController) {
         super(viewStack);
@@ -28,6 +62,11 @@ export class MainView extends BaseView {
     protected onEnter() : void {
         this.header.init();
         this.addChild(this.header);
+
+        this.buyAmountToggle = new BuyAmountToggle(() => this.toggleBuyAmount());
+        this.addChild(this.buyAmountToggle);
+        this.buyAmountToggle.setText(this.buyAmountString());
+        this.buyAmountToggle.x = window.innerWidth * 0.5 - this.buyAmountToggle.width*3;
 
         const btn = new Button('reset', () => {
             console.log('clear local storage')
@@ -103,11 +142,12 @@ export class MainView extends BaseView {
         const texture = Loader.shared.resources[id].texture;
         if(this.states.business.hasUnlockedBusiness(id)) {
             const business = this.states.business.businesses[id];
-            const cost = this.configs.business.getCost(id, business.amount, 1);
+            const buyAmount = this.buyAmount();
+            const cost = buyAmount * this.configs.business.getCost(id, business.amount, buyAmount);
             const profit = this.configs.business.getProfit(id, business.amount);
             const nextMilestone = this.configs.business.getNextMilestone(business.amount);
             const managerID = this.configs.manager.getBusinessMainManagerID(id);
-            cell.updateUnlocked(business.amount, nextMilestone, cost, profit, this.states.manager.hasUnlockedManager(managerID));
+            cell.updateUnlocked(this.buyAmountString(), business.amount, nextMilestone, cost, profit, this.states.manager.hasUnlockedManager(managerID));
 
             const timeToProfit = this.configs.business.getTimeToProfit(id, business.amount);
             cell.setTimeToProfit(timeToProfit);
@@ -243,9 +283,9 @@ export class MainView extends BaseView {
         console.assert(this.states.business.hasUnlockedBusiness(businessID), 'needs unlocked business');
         console.log('tryUpgradeBusiness=' + businessID);
 
-        const byAmount = 1; // TODO
+        const buyAmount = this.buyAmount();
         const business = this.states.business.getBusiness(businessID);
-        const cost = this.configs.business.getCost(businessID, business.amount, byAmount);
+        const cost = buyAmount * this.configs.business.getCost(businessID, business.amount, buyAmount);
         if(cost > this.states.wallet.money) {
             // TODO notify can't buy
             console.log('not enough money');
@@ -253,7 +293,7 @@ export class MainView extends BaseView {
         }
 
         this.states.wallet.addMoneyDelta(-cost);
-        this.states.business.upgradeBusiness(businessID, byAmount);
+        this.states.business.upgradeBusiness(businessID, buyAmount);
 
         const cell = this.businessCells[cellIndex];
         this.updateBusinessCell(cellIndex);
@@ -261,5 +301,45 @@ export class MainView extends BaseView {
 
     private openManagerPopup(managerID: string): void {
         this.viewStack.push(new ManagerPopupView(this.viewStack, this.configs, this.states, managerID), true);
+    }
+
+    private buyAmountString(): string {
+        switch(this.buyAmountType) {
+            case BuyAmountType.Ten: {
+                return 'x10';
+            }
+            case BuyAmountType.Hundred: {
+                return 'x100';
+            }
+            default: {
+                return 'x1';
+            }
+        }
+    }
+
+    private buyAmount(): number {
+        switch(this.buyAmountType) {
+            case BuyAmountType.Ten: {
+                return 10;
+            }
+            case BuyAmountType.Hundred: {
+                return 100;
+            }
+            default: {
+                return 1;
+            }
+        }
+    }
+
+    private toggleBuyAmount(): void {
+        this.buyAmountType += 1;
+        if(this.buyAmountType >= BuyAmountType.Max) {
+            this.buyAmountType = BuyAmountType.One;
+        }
+        this.buyAmountToggle.setText(this.buyAmountString());
+
+        for(let i = 0; i < this.businessCells.length; ++i) {
+            this.updateBusinessCell(i);
+        }
     }
 }
