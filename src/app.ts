@@ -56,19 +56,18 @@ export class App {
     private initStates() {
         this.states = new StateHolder();
         this.states.init(this.configs);
-        if (this.states.game.hasBeenInitialized) {
-            return;
-        }
-        console.log('initializing game with initial state');
+        if (!this.states.game.hasBeenInitialized) {
+            console.log('initializing game with initial state');
 
-        for(const initialBusinessID of this.configs.business.getInitialBusinessIDs()) {
-            this.states.business.unlockBusiness(initialBusinessID);
-        }
-        for(const initialManagerID of this.configs.manager.getInitialManagerIDs()) {
-            this.states.manager.unlockManager(initialManagerID);
-        }
+            for(const initialBusinessID of this.configs.business.getInitialBusinessIDs()) {
+                this.states.business.unlockBusiness(initialBusinessID);
+            }
+            for(const initialManagerID of this.configs.manager.getInitialManagerIDs()) {
+                this.states.manager.unlockManager(initialManagerID);
+            }
 
-        this.states.game.markInitialized();
+            this.states.game.markInitialized();
+        }
     }
 }
 

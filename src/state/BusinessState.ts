@@ -1,7 +1,7 @@
 import { BaseState } from './BaseState';
 import { BusinessConfig } from '../config/BusinessConfig';
 
-export interface Business {
+interface IBusiness {
 	id: string;
 	amount: number;
 	workTimestamp: number;
@@ -16,13 +16,13 @@ export class BusinessState extends BaseState {
 	}
 
 	protected initializeState(): void {
-		const businesses: {[id: string]: Business} = {};
+		const businesses: {[id: string]: IBusiness} = {};
 		this.state = {
 			businesses,
 		};
 	}
 
-	public get businesses(): {[id: string]: Business} {
+	private get businesses(): {[id: string]: IBusiness} {
 		return this.state.businesses;
 	}
 
@@ -31,7 +31,7 @@ export class BusinessState extends BaseState {
 		return !!this.getBusiness(id);
 	}
 
-	public getBusiness(id: string) : Business {
+	public getBusiness(id: string) : IBusiness {
 		return this.businesses[id];
 	}
 

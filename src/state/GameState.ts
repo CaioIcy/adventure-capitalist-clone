@@ -1,23 +1,34 @@
 import { BaseState } from './BaseState';
 
 export class GameState extends BaseState {
-	public constructor() {
-		super();
-	}
+    public constructor() {
+        super();
+    }
 
-	protected initializeState(): void {
-		const initialized: boolean = false;
-		this.state = {
-			initialized,
-		};
-	}
+    protected initializeState(): void {
+        const initialized: boolean = false;
+        const lastTimestamp: number = -1;
+        this.state = {
+            initialized,
+            lastTimestamp,
+        };
+    }
 
-	public get hasBeenInitialized(): boolean {
-		return !!this.state.initialized;
-	}
+    public get hasBeenInitialized(): boolean {
+        return !!this.state.initialized;
+    }
 
-	public markInitialized() : void {
-		this.state.initialized = true;
-		this.save();
-	}
+    public markInitialized() : void {
+        this.state.initialized = true;
+        this.save();
+    }
+
+    public setLastTimestamp(ts: number): void {
+        this.state.lastTimestamp = ts;
+        this.save();
+    }
+
+    public getLastTimestamp(): number {
+        return this.state.lastTimestamp;
+    }
 }

@@ -3,6 +3,7 @@ import { Scrollbox } from 'pixi-scrollbox';
 import { BaseController } from './BaseController';
 import { ControllerStack } from './ControllerStack';
 import { ManagerPopupController } from './ManagerPopupController';
+import { OfflineProfitPopupController } from './OfflineProfitPopupController';
 import { TimeUtil } from '../util/TimeUtil';
 import { Button } from '../ui/component/Button';
 import { BuyAmountToggle, BuyAmountType } from '../ui/component/BuyAmountToggle';
@@ -68,24 +69,24 @@ export class MainController extends BaseController {
             this.view.businessCells.push(cell);
 
             const businessIDs = this.configs.business.getBusinessIDs();
-            const id = businessIDs[i];
-            const businessTexture = Loader.shared.resources[id].texture;
-            const managerID = this.configs.manager.getBusinessMainManagerID(id);
+            const businessID = businessIDs[i];
+            const businessTexture = Loader.shared.resources[businessID].texture;
+            const managerID = this.configs.manager.getManagerID(businessID);
             const managerTexture = Loader.shared.resources[managerID].texture;
-            const cfg = this.configs.business.getBusinessConfig(id);
-            if(this.states.business.hasUnlockedBusiness(id)) {
+            const cfg = this.configs.business.getBusinessConfig(businessID);
+            if(this.states.business.hasUnlockedBusiness(businessID)) {
                 cell.setupUnlocked(businessTexture, managerTexture,
                     () => {
                         // TODO block click if manager available;
-                        this.workBusiness(i, id);
+                        this.workBusiness(i, businessID);
                     },
                     () => {
-                        this.tryUpgradeBusiness(i, id);
+                        this.tryUpgradeBusiness(i, businessID);
                     }
                 );
             } else {
-                cell.setupLocked(businessTexture, cfg.name, this.configs.business.getCost(id, 0, 1), () => {
-                    this.tryUnlockBusiness(i, id);
+                cell.setupLocked(businessTexture, cfg.name, this.configs.business.getCost(businessID, 0, 1), () => {
+                    this.tryUnlockBusiness(i, businessID);
                 });
             }
 
@@ -98,25 +99,27 @@ export class MainController extends BaseController {
         }
         this.view.scroll.update();
 
+
+        this.processOfflineProfit(); // before scheduling the update
         Ticker.shared.add(this.update, this);
     }
 
     private updateBusinessCell(cellIndex: number): void {
         const businessIDs = this.configs.business.getBusinessIDs();
-        const id = businessIDs[cellIndex];
-        const cfg = this.configs.business.getBusinessConfig(id);
+        const businessID = businessIDs[cellIndex];
+        const cfg = this.configs.business.getBusinessConfig(businessID);
         const cell = this.view.businessCells[cellIndex];
-        const texture = Loader.shared.resources[id].texture;
-        if(this.states.business.hasUnlockedBusiness(id)) {
-            const business = this.states.business.businesses[id];
+        const texture = Loader.shared.resources[businessID].texture;
+        if(this.states.business.hasUnlockedBusiness(businessID)) {
+            const business = this.states.business.getBusiness(businessID);
             const buyAmount = this.buyAmount();
-            const cost = buyAmount * this.configs.business.getCost(id, business.amount, buyAmount);
-            const profit = this.configs.business.getProfit(id, business.amount);
+            const cost = buyAmount * this.configs.business.getCost(businessID, business.amount, buyAmount);
+            const profit = this.configs.business.getProfit(businessID, business.amount);
             const nextMilestone = this.configs.business.getNextMilestone(business.amount);
-            const managerID = this.configs.manager.getBusinessMainManagerID(id);
+            const managerID = this.configs.manager.getManagerID(businessID);
             cell.updateUnlocked(this.buyAmountString(), business.amount, nextMilestone, cost, profit, this.states.manager.hasUnlockedManager(managerID));
 
-            const timeToProfit = this.configs.business.getTimeToProfit(id, business.amount);
+            const timeToProfit = this.configs.business.getTimeToProfit(businessID, business.amount);
             cell.setTimeToProfit(timeToProfit);
 
             // TODO no need to update this, only setup once
@@ -148,16 +151,8 @@ export class MainController extends BaseController {
                 continue;
             }
 
-            let hasManager = false;
-            const businessManagerIDs = this.configs.manager.getBusinessManagerIDs(businessID);
-            for(const managerID of businessManagerIDs) {
-                if(this.states.manager.hasUnlockedManager(managerID)) {
-                    hasManager = true;
-                    break;
-                }
-            }
-
-            if(hasManager) {
+            const managerID = this.configs.manager.getManagerID(businessID);
+            if(this.states.manager.hasUnlockedManager(managerID)) {
                 this.workBusiness(i, businessID);
             }
         }
@@ -165,32 +160,36 @@ export class MainController extends BaseController {
         // update work progress
         const now = TimeUtil.nowS();
         for(let i = 0; i < businessIDs.length; ++i) {
-            const id = businessIDs[i];
-            if(!this.states.business.hasUnlockedBusiness(id)) {
+            const businessID = businessIDs[i];
+            if(!this.states.business.hasUnlockedBusiness(businessID)) {
                 continue;
             }
-            if(!this.states.business.isWorking(id)) {
+            if(!this.states.business.isWorking(businessID)) {
                 continue;
             }
 
             const cell = this.view.businessCells[i];
-            const business = this.states.business.getBusiness(id);
-            const timeToProfit = this.configs.business.getTimeToProfit(id, business.amount);
+            const business = this.states.business.getBusiness(businessID);
+            const timeToProfit = this.configs.business.getTimeToProfit(businessID, business.amount);
 
-            if(now > this.states.business.businesses[id].workTimestamp) { // finished working
-                this.states.business.setWorkTimestamp(id, -1);
-                const profit = this.configs.business.getProfit(id, business.amount);
+            if(now > this.states.business.getBusiness(businessID).workTimestamp) { // finished working
+                this.states.business.setWorkTimestamp(businessID, -1);
+                const profit = this.configs.business.getProfit(businessID, business.amount);
                 this.states.wallet.addMoneyDelta(profit);
 
                 cell.setProfitProgress(0);
                 cell.setTimeToProfit(timeToProfit);
             }
             else { // still working
-                const progress = 1.0 - ((business.workTimestamp - now) / timeToProfit);
+                const progress = (timeToProfit > 0.5)
+                    ? (1.0 - ((business.workTimestamp - now) / timeToProfit))
+                    : 1.0;
                 cell.setProfitProgress(progress);
                 cell.setTimeToProfit(business.workTimestamp - now);
             }
         }
+
+        this.states.game.setLastTimestamp(now);
     }
 
     private onWalletStateUpdate(): void {
@@ -201,7 +200,7 @@ export class MainController extends BaseController {
         const businessIDs = this.configs.business.getBusinessIDs();
         for(let i = 0; i < this.view.businessCells.length; ++i) {
             const cell = this.view.businessCells[i];
-            const managerID = this.configs.manager.getBusinessMainManagerID(businessIDs[i]);
+            const managerID = this.configs.manager.getManagerID(businessIDs[i]);
             cell.setUnlockedManager(this.states.manager.hasUnlockedManager(managerID));
         }
     }
@@ -232,7 +231,8 @@ export class MainController extends BaseController {
         this.states.business.unlockBusiness(businessID);
 
         const businessTexture = Loader.shared.resources[businessID].texture;
-        const managerTexture = Loader.shared.resources[this.configs.manager.getBusinessMainManagerID(businessID)].texture;
+        const managerID = this.configs.manager.getManagerID(businessID);
+        const managerTexture = Loader.shared.resources[managerID].texture;
         const cell = this.view.businessCells[cellIndex];
         cell.setupUnlocked(businessTexture, managerTexture,
             () => {
@@ -307,6 +307,39 @@ export class MainController extends BaseController {
 
         for(let i = 0; i < this.view.businessCells.length; ++i) {
             this.updateBusinessCell(i);
+        }
+    }
+
+    private processOfflineProfit(): void {
+        const now = TimeUtil.nowS();
+        const ts = this.states.game.getLastTimestamp();
+        const secondsOffline = now - ts;
+        if(secondsOffline <= 0) { return; }
+
+        let sumTotalProfit = 0;
+        const businessIDs = this.configs.business.getBusinessIDs();
+        for(let i = 0; i < businessIDs.length; ++i) {
+            const businessID = businessIDs[i];
+            const managerID = this.configs.manager.getManagerID(businessID);
+            if(!this.states.manager.hasUnlockedManager(managerID)) {
+                continue;
+            }
+
+            const business = this.states.business.getBusiness(businessID);
+            const timeToProfit = this.configs.business.getTimeToProfit(businessID, business.amount);
+            const timesProfitted = secondsOffline/timeToProfit;
+            if(timesProfitted >= 1) {
+                const profit = this.configs.business.getProfit(businessID, business.amount);
+                sumTotalProfit += timesProfitted * profit;
+            }
+        }
+
+        if(sumTotalProfit > 0) {
+            this.states.wallet.addMoneyDelta(sumTotalProfit);
+        }
+
+        if(secondsOffline > this.configs.game.secondsToShowOfflineProfit && sumTotalProfit > 0) {
+            this.controllerStack.push(new OfflineProfitPopupController(this.controllerStack, this.configs, this.states, sumTotalProfit), true);
         }
     }
 }
