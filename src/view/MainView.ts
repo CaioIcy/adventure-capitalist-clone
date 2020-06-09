@@ -2,6 +2,7 @@ import { Loader, Text, Ticker } from 'pixi.js';
 import { Scrollbox } from 'pixi-scrollbox'
 import { BaseView } from './BaseView';
 import { ViewStack } from './ViewStack';
+import { ManagerPopupView } from './ManagerPopupView';
 import { TimeUtil } from '../util/TimeUtil';
 import { Button } from '../ui/component/Button';
 import { BusinessCell } from '../ui/component/BusinessCell';
@@ -43,6 +44,8 @@ export class MainView extends BaseView {
         this.states.wallet.addObserverCallback(this, ()=>this.onWalletStateUpdate());
         this.onWalletStateUpdate();
 
+        this.states.manager.addObserverCallback(this, ()=>this.onManagerStateUpdate());
+
         const padding = 8;
         let y = this.header.height + padding;
         this.scroll = new Scrollbox({
@@ -61,7 +64,8 @@ export class MainView extends BaseView {
             const businessIDs = this.configs.business.getBusinessIDs();
             const id = businessIDs[i];
             const businessTexture = Loader.shared.resources[id].texture;
-            const managerTexture = Loader.shared.resources[this.configs.manager.getBusinessMainManagerID(id)].texture;
+            const managerID = this.configs.manager.getBusinessMainManagerID(id);
+            const managerTexture = Loader.shared.resources[managerID].texture;
             const cfg = this.configs.business.getBusinessConfig(id);
             if(this.states.business.hasUnlockedBusiness(id)) {
                 cell.setupUnlocked(businessTexture, managerTexture,
@@ -102,10 +106,16 @@ export class MainView extends BaseView {
             const cost = this.configs.business.getCost(id, business.amount, 1);
             const profit = this.configs.business.getProfit(id, business.amount);
             const nextMilestone = this.configs.business.getNextMilestone(business.amount);
-            cell.updateUnlocked(business.amount, nextMilestone, cost, profit, this.states.manager.hasUnlockedManager(this.configs.manager.getBusinessMainManagerID(id)));
+            const managerID = this.configs.manager.getBusinessMainManagerID(id);
+            cell.updateUnlocked(business.amount, nextMilestone, cost, profit, this.states.manager.hasUnlockedManager(managerID));
 
             const timeToProfit = this.configs.business.getTimeToProfit(id, business.amount);
             cell.setTimeToProfit(timeToProfit);
+
+            // TODO no need to update this, only setup once
+            cell.setManagerClickCallback(() => {
+                this.openManagerPopup(managerID);
+            });
         } else {
             // nothing to update on locked cell
         }
@@ -113,6 +123,7 @@ export class MainView extends BaseView {
 
     protected onExit() : void {
         this.states.wallet.removeObserverCallback(this);
+        this.states.manager.removeObserverCallback(this);
     }
 
     private update() : void {
@@ -179,6 +190,15 @@ export class MainView extends BaseView {
         this.header.setMoney(this.states.wallet.money);
     }
 
+    private onManagerStateUpdate(): void {
+        const businessIDs = this.configs.business.getBusinessIDs();
+        for(let i = 0; i < this.businessCells.length; ++i) {
+            const cell = this.businessCells[i];
+            const managerID = this.configs.manager.getBusinessMainManagerID(businessIDs[i]);
+            cell.setUnlockedManager(this.states.manager.hasUnlockedManager(managerID));
+        }
+    }
+
     private workBusiness(cellIndex: number, businessID: string): void {
         const business = this.states.business.getBusiness(businessID);
         if(this.states.business.isWorking(businessID)) {
@@ -204,7 +224,18 @@ export class MainView extends BaseView {
         this.states.wallet.addMoneyDelta(-cost);
         this.states.business.unlockBusiness(businessID);
 
-        // TODO cell does not have unlocked state setup'd
+        const businessTexture = Loader.shared.resources[businessID].texture;
+        const managerTexture = Loader.shared.resources[this.configs.manager.getBusinessMainManagerID(businessID)].texture;
+        const cell = this.businessCells[cellIndex];
+        cell.setupUnlocked(businessTexture, managerTexture,
+            () => {
+                // TODO block click if manager available;
+                this.workBusiness(cellIndex, businessID);
+            },
+            () => {
+                this.tryUpgradeBusiness(cellIndex, businessID);
+            }
+        );
         this.updateBusinessCell(cellIndex);
     }
 
@@ -226,5 +257,9 @@ export class MainView extends BaseView {
 
         const cell = this.businessCells[cellIndex];
         this.updateBusinessCell(cellIndex);
+    }
+
+    private openManagerPopup(managerID: string): void {
+        this.viewStack.push(new ManagerPopupView(this.viewStack, this.configs, this.states, managerID), true);
     }
 }

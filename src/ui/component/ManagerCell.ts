@@ -1,14 +1,23 @@
 import { Container, Sprite, Texture, filters } from 'pixi.js';
 
 export class ManagerCell extends Container {
+    private background: Sprite;
     private managerSprite: Sprite;
 
     public constructor() {
         super();
 
+        const width = 64;
+        const height = 64;
+
+        this.background = new Sprite(Texture.WHITE);
+        this.background.width = width;
+        this.background.height = height;
+        this.addChild(this.background);
+
         this.managerSprite = new Sprite(Texture.WHITE);
-        this.managerSprite.width = 64;
-        this.managerSprite.height = 64;
+        this.managerSprite.width = width;
+        this.managerSprite.height = height;
         this.addChild(this.managerSprite);
     }
 
@@ -33,5 +42,12 @@ export class ManagerCell extends Container {
         } else {
             this.managerSprite.filters = [];
         }
+    }
+
+    public setClickCallback(action: ()=>void): void {
+        this.background.interactive = true;
+        this.background.buttonMode = true;
+        this.background.removeAllListeners();
+        this.background.on('pointerdown', action);
     }
 }

@@ -53,9 +53,7 @@ class UpgradeButton extends Container {
     }
 
     public setCost(costText: string): void {
-        console.log(1, this.costLabel.width);
         this.costLabel.text = `$${costText}`;
-        console.log(2, this.costLabel.width);
         this.costLabel.updateTransform();
         this.costLabel.x = this.width - this.costLabel.width * 1.5; // TODO ?
         this.costLabel.y = this.height - this.costLabel.height;
@@ -241,5 +239,13 @@ export class BusinessCell extends Container {
     public setProfitProgress(progress: number): void {
         console.assert(this.unlocked !== null, 'should be unlocked');
         this.unlocked.workProgressBar.setProgress(progress);
+    }
+
+    public setUnlockedManager(isManagerUnlocked: boolean): void {
+        this.unlocked?.managerCell.enableGreyscaleFilter(!isManagerUnlocked);
+    }
+
+    public setManagerClickCallback(action: ()=>void): void {
+        this.unlocked?.managerCell.setClickCallback(action);
     }
 }

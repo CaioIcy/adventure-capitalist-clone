@@ -10,9 +10,9 @@ export class ViewStack {
         this.stack = [];
     }
 
-    public push(view: BaseView) {
+    public push(view: BaseView, keepVisible: boolean = false) {
         if(!this.stackIsEmpty()) {
-            this.stack[this.stack.length - 1].visible = false;
+            this.stack[this.stack.length - 1].visible = keepVisible;
         }
 
         this.stack.push(view);
