@@ -3,7 +3,7 @@ import { ManagerConfig } from './ManagerConfig';
 import { GameConfig } from './GameConfig';
 import { WalletConfig } from './WalletConfig';
 
-export class ConfigController {
+export class ConfigHolder {
 	public wallet: WalletConfig;
 	public business: BusinessConfig;
 	public manager: ManagerConfig;

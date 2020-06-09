@@ -1,14 +1,14 @@
 import { Application, Loader, settings, SCALE_MODES } from 'pixi.js';
-import { ConfigController } from './config/ConfigController';
-import { StateController } from './state/StateController';
-import { ViewStack } from './view/ViewStack';
-import { MainView } from './view/MainView';
+import { ConfigHolder } from './config/ConfigHolder';
+import { StateHolder } from './state/StateHolder';
+import { ControllerStack } from './controller/ControllerStack';
+import { MainController } from './controller/MainController';
 
 export class App {
     private app : Application;
-    private viewStack : ViewStack;
-    private states : StateController;
-    private configs : ConfigController;
+    private controllerStack : ControllerStack;
+    private states : StateHolder;
+    private configs : ConfigHolder;
 
     public constructor() {
         this.app = new Application({
@@ -16,7 +16,7 @@ export class App {
             resolution: 1,
             // resolution: window.devicePixelRatio,
         });
-        this.viewStack = new ViewStack(this.app.stage);
+        this.controllerStack = new ControllerStack(this.app.stage);
     }
 
     public start() {
@@ -28,7 +28,7 @@ export class App {
         this.initLoader(() => {
             console.log('completed loading');
             this.initStates();
-            this.viewStack.push(new MainView(this.viewStack, this.configs, this.states));
+            this.controllerStack.push(new MainController(this.controllerStack, this.configs, this.states));
         });
     }
 
@@ -49,12 +49,12 @@ export class App {
     }
 
     private initConfigs() {
-        this.configs = new ConfigController();
+        this.configs = new ConfigHolder();
         this.configs.init();
     }
 
     private initStates() {
-        this.states = new StateController();
+        this.states = new StateHolder();
         this.states.init(this.configs);
         if (this.states.game.hasBeenInitialized) {
             return;

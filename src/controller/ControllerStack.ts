@@ -1,23 +1,23 @@
 import { Container } from 'pixi.js';
-import { BaseView } from './BaseView';
+import { BaseController } from './BaseController';
 
-export class ViewStack {
+export class ControllerStack {
     private appStage : Container;
-    private stack : Array<BaseView>;
+    private stack : Array<BaseController>;
 
     public constructor(stage : Container) {
         this.appStage = stage;
         this.stack = [];
     }
 
-    public push(view: BaseView, keepVisible: boolean = false) {
+    public push(controller: BaseController, keepVisible: boolean = false) {
         if(!this.stackIsEmpty()) {
             this.stack[this.stack.length - 1].visible = keepVisible;
         }
 
-        this.stack.push(view);
-        this.appStage.addChild(view);
-        view.enter();
+        this.stack.push(controller);
+        this.appStage.addChild(controller);
+        controller.enter();
     }
 
     public pop() {

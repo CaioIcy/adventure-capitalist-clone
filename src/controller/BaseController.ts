@@ -1,12 +1,12 @@
 import { Container } from 'pixi.js';
-import { ViewStack } from './ViewStack';
+import { ControllerStack } from './ControllerStack';
 
-export abstract class BaseView extends Container {
-    protected viewStack : ViewStack;
+export abstract class BaseController extends Container {
+    protected controllerStack : ControllerStack;
 
-    public constructor(viewStack : ViewStack) {
+    public constructor(controllerStack : ControllerStack) {
         super();
-        this.viewStack = viewStack;
+        this.controllerStack = controllerStack;
     }
 
     protected abstract onEnter() : void;
