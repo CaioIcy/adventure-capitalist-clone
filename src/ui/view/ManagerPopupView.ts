@@ -1,6 +1,7 @@
 import { Container, Text, Texture, Sprite } from 'pixi.js';
 import { ManagerCell } from '../component/ManagerCell';
 import { Button } from '../component/Button';
+import { TextUtil } from '../util/TextUtil';
 
 export class ManagerPopupView extends Container {
     private managerCell: ManagerCell;
@@ -51,7 +52,7 @@ export class ManagerPopupView extends Container {
         buyButton.y = height - pad;
         this.addChild(buyButton);
 
-        this.costLabel = new Text('');
+        this.costLabel = new Text('', TextUtil.defaultStyle());
         this.addChild(this.costLabel);
         this.setCost('OOOOO');
     }

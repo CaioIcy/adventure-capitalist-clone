@@ -1,12 +1,13 @@
 import { Container, Text } from 'pixi.js';
 import { MoneyUtil } from '../../util/MoneyUtil';
+import { TextUtil } from '../util/TextUtil';
 
 export class HeaderContainer extends Container {
     private moneyLabel: Text;
 
     public constructor() {
         super();
-        this.moneyLabel = new Text('');
+        this.moneyLabel = new Text('', TextUtil.defaultStyle());
     }
 
     public init() : void {

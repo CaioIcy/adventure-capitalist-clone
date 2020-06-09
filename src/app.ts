@@ -35,7 +35,9 @@ export class App {
     private initLoader(completion: ()=>void) {
         const loader = Loader.shared;
         loader.onComplete.add(completion);
+        loader.onError.add(() => console.error('error loading'));
 
+        loader.add('Tabitha', 'assets/tabitha.ttf');
         this.configs.business.loadImages((id, url) => {
             loader.add(id, url);
         });

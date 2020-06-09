@@ -1,4 +1,5 @@
 import { Container, Text } from 'pixi.js';
+import { TextUtil } from '../util/TextUtil';
 
 export enum BuyAmountType {
     One,
@@ -13,7 +14,7 @@ export class BuyAmountToggle extends Container {
     public constructor(onToggleAction: ()=>void) {
         super();
 
-        this.label = new Text('x?');
+        this.label = new Text('x?', TextUtil.defaultStyle());
         this.addChild(this.label);
         this.setClickCallback(onToggleAction);
     }

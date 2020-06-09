@@ -1,5 +1,6 @@
 import { Container, Text, Texture, Sprite } from 'pixi.js';
 import { Button } from '../component/Button';
+import { TextUtil } from '../util/TextUtil';
 
 export class OfflineProfitPopupView extends Container {
     private profitLabel: Text;
@@ -30,7 +31,7 @@ export class OfflineProfitPopupView extends Container {
         collectButton.y = height - pad;
         this.addChild(collectButton);
 
-        this.profitLabel = new Text('');
+        this.profitLabel = new Text('', TextUtil.defaultStyle());
         this.addChild(this.profitLabel);
         this.setProfit('OOOOO');
     }

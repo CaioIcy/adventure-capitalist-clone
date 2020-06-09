@@ -1,7 +1,7 @@
 import { Container, Text, Sprite, Texture, filters } from 'pixi.js';
 import { ManagerCell } from './ManagerCell';
 import { ProgressBar } from './ProgressBar';
-import { TextureUtil } from '../../util/TextureUtil';
+import { TextUtil } from '../util/TextUtil';
 import { TimeUtil } from '../../util/TimeUtil';
 import { MoneyUtil } from '../../util/MoneyUtil';
 
@@ -33,15 +33,15 @@ class UpgradeButton extends Container {
         this.background.tint = 0xf79b19;
         this.addChild(this.background);
 
-        this.buyLabel = new Text('BUY');
+        this.buyLabel = new Text('BUY', TextUtil.defaultStyle());
         this.addChild(this.buyLabel);
 
-        this.amountLabel = new Text('');
+        this.amountLabel = new Text('', TextUtil.defaultStyle());
         this.addChild(this.amountLabel);
         this.setAmount('x?');
         this.amountLabel.y = this.height - this.amountLabel.height;
 
-        this.costLabel = new Text('');
+        this.costLabel = new Text('', TextUtil.defaultStyle());
         this.addChild(this.costLabel);
         this.setCost('OOOOO');
     }
@@ -87,11 +87,11 @@ class LockedBusinessCell extends Container {
         this.businessSprite.height = 96;
         this.addChild(this.businessSprite);
 
-        this.businessNameLabel = new Text('');
+        this.businessNameLabel = new Text('', TextUtil.defaultStyle());
         this.businessNameLabel.x = BWIDTH/2;
         this.addChild(this.businessNameLabel);
 
-        this.unlockPriceLabel = new Text('');
+        this.unlockPriceLabel = new Text('', TextUtil.defaultStyle());
         this.unlockPriceLabel.x = BWIDTH/2;
         this.unlockPriceLabel.y += this.unlockPriceLabel.height;
         this.addChild(this.unlockPriceLabel);
@@ -130,7 +130,7 @@ class UnlockedBusinessCell extends Container {
         this.background.height = BHEIGHT;
         this.addChild(this.background);
 
-        this.businessSprite = new Sprite(TextureUtil.createTexture('#FF00FF'));
+        this.businessSprite = new Sprite(Texture.WHITE);
         this.businessSprite.width = BHEIGHT;
         this.businessSprite.height = BHEIGHT;
         this.addChild(this.businessSprite);
@@ -158,7 +158,7 @@ class UnlockedBusinessCell extends Container {
         this.upgradeButton.y = this.workProgressBar.height;
         this.upgradeButton.setCost('666');
 
-        this.timeToProfitLabel = new Text('');
+        this.timeToProfitLabel = new Text('', TextUtil.defaultStyle());
         this.addChild(this.timeToProfitLabel);
         this.timeToProfitLabel.y = this.workProgressBar.height + (BHEIGHT - this.workProgressBar.height)*0.5 - this.timeToProfitLabel.height*0.5;
         this.setTimeToProfit('');

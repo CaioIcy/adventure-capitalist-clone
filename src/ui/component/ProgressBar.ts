@@ -1,5 +1,5 @@
 import { Container, Text, Sprite, Texture } from 'pixi.js';
-import { TextureUtil } from '../../util/TextureUtil';
+import { TextUtil } from '../util/TextUtil';
 
 export interface ProgressBarOptions {
 	width: number;
@@ -26,18 +26,19 @@ export class ProgressBar extends Container {
         bg.height = height;
         this.addChild(bg);
 
-        this.progress = new Sprite(TextureUtil.createTexture('#00ff00'));
+        this.progress = new Sprite(Texture.WHITE);
+        this.progress.tint = 0x00FF00;
         this.progress.x = this.pad;
         this.progress.y = this.pad;
         this.progress.height = height-this.pad*2;
         this.addChild(this.progress);
         this.setProgress(0.0);
 
-        this.label = new Text('', {
+        this.label = new Text('', TextUtil.createStyle({
             fill: 'white',
             stroke: 'black',
             strokeThickness: 3,
-        });
+        }));
         this.addChild(this.label);
         this.setText('TODO');
     }
