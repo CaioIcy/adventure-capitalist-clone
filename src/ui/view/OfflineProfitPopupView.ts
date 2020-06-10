@@ -1,8 +1,11 @@
 import { Container, Text, Texture, Sprite } from 'pixi.js';
 import { Button } from '../component/Button';
+import { Background } from '../component/Background';
 import { TextUtil } from '../util/TextUtil';
 
 export class OfflineProfitPopupView extends Container {
+    private background: Background;
+    private timeOfflineLabel: Text;
     private profitLabel: Text;
     public collectAction: ()=>void;
 
@@ -16,11 +19,54 @@ export class OfflineProfitPopupView extends Container {
         this.x = window.innerWidth * 0.5 - width * 0.5;
         this.y = window.innerHeight * 0.5 - height * 0.5;
 
-        const background = new Sprite(Texture.WHITE);
-        background.tint = 0xEFEFEF;
-        background.width = width;
-        background.height = height;
-        this.addChild(background);
+        const overlay = new Sprite(Texture.WHITE);
+        overlay.tint = 0x000000;
+        overlay.alpha = 0.75;
+        overlay.x = -window.innerWidth*2;
+        overlay.y = -window.innerHeight*2;
+        overlay.width = window.innerWidth*4;
+        overlay.height = window.innerHeight*4;
+        overlay.interactive = true;
+        this.addChild(overlay);
+
+        this.background = new Background({
+            tint: 0x575757,
+            lightTint: 0x575757,
+            darkTint: 0x575757,
+            borderTint: 0x171717,
+            pad:4,
+            width,
+            height,
+        });
+        this.addChild(this.background);
+
+        const titleLabel = new Text('WELCOME BACK!', TextUtil.createStyle({
+            fontSize: 42,
+            fill: '#AAAAFF',
+        }));
+        this.addChild(titleLabel);
+        titleLabel.x = width * 0.5 - titleLabel.width*0.5;
+        titleLabel.y = pad;
+
+        const descriptionLabel = new Text('You were offline for:', TextUtil.defaultStyle());
+        this.addChild(descriptionLabel);
+        descriptionLabel.x = width * 0.5 - descriptionLabel.width*0.5;
+        descriptionLabel.y = titleLabel.y + titleLabel.height + pad;
+
+        this.timeOfflineLabel = new Text('XXhXXmXXs', TextUtil.defaultStyle());
+        this.addChild(this.timeOfflineLabel);
+        this.timeOfflineLabel.x = width * 0.5 - this.timeOfflineLabel.width*0.5;
+        this.timeOfflineLabel.y = descriptionLabel.y + descriptionLabel.height + 4;
+
+        const collectedLabel = new Text('You have earned:', TextUtil.defaultStyle());
+        this.addChild(collectedLabel);
+        collectedLabel.x = width * 0.5 - collectedLabel.width*0.5;
+        collectedLabel.y = this.timeOfflineLabel.y + this.timeOfflineLabel.height + 2*pad;
+
+        this.profitLabel = new Text('OOOOO', TextUtil.defaultStyle());
+        this.addChild(this.profitLabel);
+        this.profitLabel.x = width * 0.5 - this.profitLabel.width*0.5;
+        this.profitLabel.y = collectedLabel.y + collectedLabel.height + 4;
 
         const collectButton = new Button('COLLECT', ()=>{
             if(this.collectAction) {
@@ -30,16 +76,15 @@ export class OfflineProfitPopupView extends Container {
         collectButton.x = width*0.5 - collectButton.width*0.5;
         collectButton.y = height - pad;
         this.addChild(collectButton);
+    }
 
-        this.profitLabel = new Text('', TextUtil.defaultStyle());
-        this.addChild(this.profitLabel);
-        this.setProfit('OOOOO');
+    public setTimeOffline(timeOfflineStr: string) {
+        this.timeOfflineLabel.text = timeOfflineStr;
+        this.timeOfflineLabel.x = this.background.width * 0.5 - this.timeOfflineLabel.width*0.5;
     }
 
     public setProfit(profitText: string): void {
         this.profitLabel.text = profitText;
-        this.profitLabel.updateTransform();
-        this.profitLabel.x = this.width*0.5 - this.profitLabel.width * 0.5;
-        this.profitLabel.y = this.height*0.5 - this.profitLabel.height * 0.5;
+        this.profitLabel.x = this.background.width * 0.5 - this.profitLabel.width*0.5;
     }
 }

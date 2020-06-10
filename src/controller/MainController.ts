@@ -345,7 +345,7 @@ export class MainController extends BaseController {
         }
 
         if(secondsOffline > this.configs.game.secondsToShowOfflineProfit && sumTotalProfit > 0) {
-            this.controllerStack.push(new OfflineProfitPopupController(this.controllerStack, this.configs, this.states, sumTotalProfit), true);
+            this.controllerStack.push(new OfflineProfitPopupController(this.controllerStack, this.configs, this.states, sumTotalProfit, secondsOffline), true);
         }
     }
 }

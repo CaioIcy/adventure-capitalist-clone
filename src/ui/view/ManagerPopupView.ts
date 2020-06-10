@@ -29,6 +29,7 @@ export class ManagerPopupView extends Container {
         overlay.y = -window.innerHeight*2;
         overlay.width = window.innerWidth*4;
         overlay.height = window.innerHeight*4;
+        overlay.interactive = true;
         this.addChild(overlay);
 
         const background = new Background({
