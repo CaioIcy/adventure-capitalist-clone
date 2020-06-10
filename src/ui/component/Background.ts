@@ -1,4 +1,4 @@
-import { Container, Text, Sprite, Texture } from 'pixi.js';
+import { Container, Sprite, Texture } from 'pixi.js';
 
 export class Background extends Container {
     // TODO shine?

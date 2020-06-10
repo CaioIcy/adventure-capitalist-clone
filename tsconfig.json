@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
-    // "baseUrl": "./src",
     "outDir": "./dist/",
     "target": "es5",
     "sourceMap": true,
     "module": "ESNext",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "noImplicitAny": true
-    // "noUnusedLocals": true
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   },
   "include": [
     "src/**/*.ts"

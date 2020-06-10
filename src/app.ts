@@ -58,7 +58,7 @@ export class App {
             loader.add(id, url);
         });
 
-        loader.load((loader, resources) => {
+        loader.load((_, __) => {
             // nothing
         });
     }

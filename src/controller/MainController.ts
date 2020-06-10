@@ -1,4 +1,4 @@
-import { Loader, Ticker, Texture, Sprite } from 'pixi.js';
+import { Loader, Ticker, Texture } from 'pixi.js';
 import { Scrollbox } from 'pixi-scrollbox';
 import { BaseController } from './BaseController';
 import { ControllerStack } from './ControllerStack';
@@ -74,7 +74,7 @@ export class MainController extends BaseController {
                 cell.setupUnlocked(businessTexture, managerTexture,
                     () => {
                         if(this.states.manager.hasUnlockedManager(managerID)) { return; }
-                        this.workBusiness(i, businessID);
+                        this.workBusiness(businessID);
                     },
                     () => {
                         this.tryUpgradeBusiness(i, businessID);
@@ -110,9 +110,7 @@ export class MainController extends BaseController {
     private updateBusinessCell(cellIndex: number): void {
         const businessIDs = this.configs.business.getBusinessIDs();
         const businessID = businessIDs[cellIndex];
-        const cfg = this.configs.business.getBusinessConfig(businessID);
         const cell = this.view.businessCells[cellIndex];
-        const texture = Loader.shared.resources[businessID].texture;
         if(this.states.business.hasUnlockedBusiness(businessID)) {
             const business = this.states.business.getBusiness(businessID);
             const buyAmount = this.buyAmount();
@@ -143,7 +141,6 @@ export class MainController extends BaseController {
     }
 
     private update() : void {
-        const cellIndex = 0;
         const businessIDs = this.configs.business.getBusinessIDs();
 
         // manager auto-work setup
@@ -159,7 +156,7 @@ export class MainController extends BaseController {
 
             const managerID = this.configs.manager.getManagerID(businessID);
             if(this.states.manager.hasUnlockedManager(managerID)) {
-                this.workBusiness(i, businessID);
+                this.workBusiness(businessID);
             }
         }
 
@@ -211,7 +208,7 @@ export class MainController extends BaseController {
         }
     }
 
-    private workBusiness(cellIndex: number, businessID: string): void {
+    private workBusiness(businessID: string): void {
         const business = this.states.business.getBusiness(businessID);
         if(this.states.business.isWorking(businessID)) {
             // already working
@@ -243,7 +240,7 @@ export class MainController extends BaseController {
         cell.setupUnlocked(businessTexture, managerTexture,
             () => {
                 if(this.states.manager.hasUnlockedManager(managerID)) { return; }
-                this.workBusiness(cellIndex, businessID);
+                this.workBusiness(businessID);
             },
             () => {
                 this.tryUpgradeBusiness(cellIndex, businessID);
@@ -268,7 +265,6 @@ export class MainController extends BaseController {
         this.states.wallet.addMoneyDelta(-cost);
         this.states.business.upgradeBusiness(businessID, buyAmount);
 
-        const cell = this.view.businessCells[cellIndex];
         this.updateBusinessCell(cellIndex);
     }
 
@@ -348,7 +344,7 @@ export class MainController extends BaseController {
         }
 
         if(secondsOffline > this.configs.game.secondsToShowOfflineProfit && sumTotalProfit > 0) {
-            this.controllerStack.push(new OfflineProfitPopupController(this.controllerStack, this.configs, this.states, sumTotalProfit, secondsOffline), true);
+            this.controllerStack.push(new OfflineProfitPopupController(this.controllerStack, sumTotalProfit, secondsOffline), true);
         }
     }
 

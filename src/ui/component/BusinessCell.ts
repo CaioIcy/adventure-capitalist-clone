@@ -1,4 +1,4 @@
-import { Container, Text, Sprite, Texture, filters } from 'pixi.js';
+import { Container, Text, Sprite, Texture } from 'pixi.js';
 import { ManagerCell } from './ManagerCell';
 import { ProgressBar } from './ProgressBar';
 import { Background } from './Background';
@@ -129,8 +129,6 @@ class UnlockedBusinessCell extends Container {
     public workProgressBar: ProgressBar;
     public timeToProfitLabel: Text;
     public managerCell: ManagerCell;
-    private __width: number;
-    private __height: number;
     private pad: number;
 
     public constructor() {
@@ -138,9 +136,6 @@ class UnlockedBusinessCell extends Container {
 
         const width = 496;
         const height = 128;
-
-        this.__width = width;
-        this.__height = height;
 
         const pad = 4;
         this.pad = pad;

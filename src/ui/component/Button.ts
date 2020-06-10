@@ -1,4 +1,4 @@
-import { Container, Text, Sprite, Texture } from 'pixi.js';
+import { Container, Text } from 'pixi.js';
 import { Background } from './Background';
 import { TextUtil } from '../util/TextUtil';
 

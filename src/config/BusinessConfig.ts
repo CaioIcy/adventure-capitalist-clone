@@ -142,7 +142,6 @@ export class BusinessConfig extends BaseConfig {
     }
 
     public getProfit(id: string, currentAmount: number): number {
-        const cfg = this.getBusinessConfig(id);
         const revenue = this.getRevenue(id, currentAmount);
         const ttp = this.getTimeToProfit(id, currentAmount);
         return Math.ceil(revenue / ttp);
