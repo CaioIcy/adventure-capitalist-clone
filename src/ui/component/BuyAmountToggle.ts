@@ -1,4 +1,5 @@
 import { Container, Text } from 'pixi.js';
+import { Background } from './Background';
 import { TextUtil } from '../util/TextUtil';
 
 export enum BuyAmountType {
@@ -9,24 +10,44 @@ export enum BuyAmountType {
 }
 
 export class BuyAmountToggle extends Container {
-    private label: Text;
+    private background: Background;
+    private amountLabel: Text;
 
     public constructor(onToggleAction: ()=>void) {
         super();
 
-        this.label = new Text('x?', TextUtil.defaultStyle());
-        this.addChild(this.label);
+        const width = 128;
+        const height = 64;
+        const pad = 4;
+        this.background = new Background({
+            tint: 0x1d6bc4,
+            borderTint: 0x08458a,
+            width,
+            height,
+            pad,
+        });
+        this.addChild(this.background);
+
+        const buyLabel = new Text('BUY', TextUtil.defaultStyle());
+        this.addChild(buyLabel);
+        buyLabel.x = width*0.5 - buyLabel.width*0.5;
+        buyLabel.y = pad;
+
+        this.amountLabel = new Text('x?', TextUtil.defaultStyle());
+        this.addChild(this.amountLabel);
         this.setClickCallback(onToggleAction);
     }
 
     public setClickCallback(action: ()=>void): void {
-        this.label.interactive = true;
-        this.label.buttonMode = true;
-        this.label.removeAllListeners();
-        this.label.on('pointerdown', action);
+        this.background.interactive = true;
+        this.background.buttonMode = true;
+        this.background.removeAllListeners();
+        this.background.on('pointerdown', action);
     }
 
     public setText(text: string): void {
-        this.label.text = text;
+        this.amountLabel.text = text;
+        this.amountLabel.x = this.background.width*0.5 - this.amountLabel.width*0.5;
+        this.amountLabel.y = this.background.height - this.amountLabel.height;
     }
 }

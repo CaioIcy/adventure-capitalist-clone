@@ -1,9 +1,10 @@
-import { Loader, Ticker } from 'pixi.js';
+import { Loader, Ticker, Texture, Sprite } from 'pixi.js';
 import { Scrollbox } from 'pixi-scrollbox';
 import { BaseController } from './BaseController';
 import { ControllerStack } from './ControllerStack';
 import { ManagerPopupController } from './ManagerPopupController';
 import { OfflineProfitPopupController } from './OfflineProfitPopupController';
+import { Window } from '../util/Window';
 import { TimeUtil } from '../util/TimeUtil';
 import { Button } from '../ui/component/Button';
 import { BuyAmountToggle, BuyAmountType } from '../ui/component/BuyAmountToggle';
@@ -34,21 +35,10 @@ export class MainController extends BaseController {
         this.view.buyAmountToggle = new BuyAmountToggle(() => this.toggleBuyAmount());
         this.addChild(this.view.buyAmountToggle);
         this.view.buyAmountToggle.setText(this.buyAmountString());
-        this.view.buyAmountToggle.x = window.innerWidth * 0.5 - this.view.buyAmountToggle.width*3;
+        this.view.buyAmountToggle.x = Window.WIDTH - this.view.buyAmountToggle.width - 32;
+        this.view.buyAmountToggle.y = 8;
 
-        const btn = new Button('reset', () => {
-            console.log('clear local storage');
-            Ticker.shared.remove(this.update, this);
-            window.localStorage.clear();
-            window.location.reload();
-        });
-        this.addChild(btn);
-
-        const btn2 = new Button('+$1000', () => {
-            this.states.wallet.addMoneyDelta(1000);
-        });
-        btn2.x = btn.width*1.5;
-        this.addChild(btn2);
+        this.addDebugButtons();
 
         this.states.wallet.addObserverCallback(this, ()=>this.onWalletStateUpdate());
         this.onWalletStateUpdate();
@@ -56,15 +46,19 @@ export class MainController extends BaseController {
         this.states.manager.addObserverCallback(this, ()=>this.onManagerStateUpdate());
 
         const padding = 16;
-        let y = this.view.header.height + padding;
+        console.log(this.view.header.height);
+        let y = this.view.header.height;
         this.view.scroll = new Scrollbox({
-            boxWidth: window.innerWidth * 0.95,
-            boxHeight: window.innerHeight - this.view.header.height,
+            boxWidth: Window.WIDTH,
+            boxHeight: Window.HEIGHT - this.view.header.height,
+            scrollbarSize: 0 ,
+            // overflowX: 'hidden',
+            // overflowY: 'hidden',
         });
         this.view.scroll.y = y;
         this.addChild(this.view.scroll);
 
-        let x = window.innerWidth * 0.5; // TODO ?
+        const x = Window.WIDTH * 0.5; // TODO ?
         const businessIDs = this.configs.business.getBusinessIDs();
         for(let i = 0; i < businessIDs.length; ++i) {
             const cell = new BusinessCell();
@@ -79,7 +73,7 @@ export class MainController extends BaseController {
             if(this.states.business.hasUnlockedBusiness(businessID)) {
                 cell.setupUnlocked(businessTexture, managerTexture,
                     () => {
-                        // TODO block click if manager available;
+                        if(this.states.manager.hasUnlockedManager(managerID)) { return; }
                         this.workBusiness(i, businessID);
                     },
                     () => {
@@ -95,12 +89,19 @@ export class MainController extends BaseController {
             this.updateBusinessCell(i);
 
             this.view.scroll.content.addChild(cell);
-            cell.x = x - cell.width*0.5;
+            cell.x = x - cell.width * 0.5;
             cell.y = y;
             y += cell.height + padding;
         }
-        this.view.scroll.update();
 
+        // HACK scroll isn't behaving well, adding dummy invisible cell to pad the bottom
+        const dummyCell = new BusinessCell();
+        dummyCell.setupLocked(Texture.WHITE, '', 0, ()=>{});
+        dummyCell.y = y;
+        this.view.scroll.content.addChild(dummyCell);
+        dummyCell.alpha = 0;
+
+        this.view.scroll.update();
 
         this.processOfflineProfit(); // before scheduling the update
         Ticker.shared.add(this.update, this);
@@ -131,6 +132,8 @@ export class MainController extends BaseController {
         } else {
             // nothing to update on locked cell
         }
+
+        this.view.scroll.update();
     }
 
     protected onExit() : void {
@@ -239,7 +242,7 @@ export class MainController extends BaseController {
         const cell = this.view.businessCells[cellIndex];
         cell.setupUnlocked(businessTexture, managerTexture,
             () => {
-                // TODO block click if manager available;
+                if(this.states.manager.hasUnlockedManager(managerID)) { return; }
                 this.workBusiness(cellIndex, businessID);
             },
             () => {
@@ -347,5 +350,22 @@ export class MainController extends BaseController {
         if(secondsOffline > this.configs.game.secondsToShowOfflineProfit && sumTotalProfit > 0) {
             this.controllerStack.push(new OfflineProfitPopupController(this.controllerStack, this.configs, this.states, sumTotalProfit, secondsOffline), true);
         }
+    }
+
+    private addDebugButtons(): void {
+        return;
+        const btn = new Button('reset', () => {
+            console.log('clear local storage');
+            Ticker.shared.remove(this.update, this);
+            window.localStorage.clear();
+            window.location.reload();
+        });
+        this.addChild(btn);
+
+        const btn2 = new Button('+$1000', () => {
+            this.states.wallet.addMoneyDelta(1000);
+        });
+        btn2.x = btn.width*1.5;
+        this.addChild(btn2);
     }
 }

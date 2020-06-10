@@ -39,8 +39,6 @@ class UpgradeButton extends Container {
             dropShadow: true,
             dropShadowColor: 'black',
             dropShadowDistance: 2,
-            // stroke: 'black',
-            // strokeThickness: 3,
         };
         this.buyLabel = new Text('BUY', TextUtil.createStyle(textStyle));
         this.buyLabel.x = pad*4;
@@ -66,7 +64,7 @@ class UpgradeButton extends Container {
 
     public setCost(costText: string): void {
         this.costLabel.text = costText;
-        this.costLabel.x = this.pad*4;//this.width - this.costLabel.width * 1.5; // TODO ?
+        this.costLabel.x = this.pad*4;
         this.costLabel.y = this.height - this.costLabel.height - this.pad;
     }
 

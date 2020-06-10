@@ -1,6 +1,7 @@
 import { Container, Text, Texture, Sprite } from 'pixi.js';
 import { Button } from '../component/Button';
 import { Background } from '../component/Background';
+import { Window } from '../../util/Window';
 import { TextUtil } from '../util/TextUtil';
 
 export class OfflineProfitPopupView extends Container {
@@ -13,19 +14,19 @@ export class OfflineProfitPopupView extends Container {
         super();
 
         const width = 560;
-        const height = window.innerHeight * 0.75;
+        const height = Window.HEIGHT * 0.75;
         const pad = 48;
 
-        this.x = window.innerWidth * 0.5 - width * 0.5;
-        this.y = window.innerHeight * 0.5 - height * 0.5;
+        this.x = Window.WIDTH * 0.5 - width * 0.5;
+        this.y = Window.HEIGHT * 0.5 - height * 0.5;
 
         const overlay = new Sprite(Texture.WHITE);
         overlay.tint = 0x000000;
         overlay.alpha = 0.75;
-        overlay.x = -window.innerWidth*2;
-        overlay.y = -window.innerHeight*2;
-        overlay.width = window.innerWidth*4;
-        overlay.height = window.innerHeight*4;
+        overlay.x = -Window.WIDTH*2;
+        overlay.y = -Window.HEIGHT*2;
+        overlay.width = Window.WIDTH*4;
+        overlay.height = Window.HEIGHT*4;
         overlay.interactive = true;
         this.addChild(overlay);
 

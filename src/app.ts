@@ -1,8 +1,9 @@
-import { Application, Loader, settings, SCALE_MODES } from 'pixi.js';
+import { Application, Loader, settings, SCALE_MODES, ObservablePoint } from 'pixi.js';
 import { ConfigHolder } from './config/ConfigHolder';
 import { StateHolder } from './state/StateHolder';
 import { ControllerStack } from './controller/ControllerStack';
 import { MainController } from './controller/MainController';
+import { Window } from './util/Window';
 
 export class App {
     private app : Application;
@@ -14,15 +15,17 @@ export class App {
         this.app = new Application({
             backgroundColor: 0x726861,
             resolution: 1,
-            // resolution: window.devicePixelRatio,
         });
         this.controllerStack = new ControllerStack(this.app.stage);
     }
 
     public start() {
         document.body.appendChild(this.app.view);
-        this.app.renderer.resize(window.innerWidth, window.innerHeight);
         settings.SCALE_MODE = SCALE_MODES.NEAREST;
+        window.addEventListener('resize', () => {
+            this.resize();
+        });
+        this.resize();
 
         this.initConfigs();
         this.initLoader(() => {
@@ -30,6 +33,17 @@ export class App {
             this.initStates();
             this.controllerStack.push(new MainController(this.controllerStack, this.configs, this.states));
         });
+    }
+
+    private resize() {
+        // assuming portrait
+        const w = Math.min(window.innerWidth, window.innerHeight);
+        const h = Math.max(window.innerWidth, window.innerHeight);
+        const aspectRatio = w / h;
+        Window.WIDTH = aspectRatio * window.innerHeight;
+        Window.HEIGHT = window.innerHeight;
+        this.app.renderer.resize(Window.WIDTH, Window.HEIGHT);
+        console.log('(w,h)=', Window.WIDTH, Window.HEIGHT);
     }
 
     private initLoader(completion: ()=>void) {
