@@ -2,77 +2,10 @@ import { Container, Text, Sprite, Texture } from 'pixi.js';
 import { ManagerCell } from './ManagerCell';
 import { ProgressBar } from './ProgressBar';
 import { Background } from './Background';
+import { BusinessUpgradeButton } from './BusinessUpgradeButton';
 import { TextUtil } from '../util/TextUtil';
 import { TimeUtil } from '../../util/TimeUtil';
 import { MoneyUtil } from '../../util/MoneyUtil';
-
-interface UpgradeButtonOptions {
-    width: number;
-    height: number;
-}
-
-class UpgradeButton extends Container {
-    private background: Background;
-    private buyLabel: Text;
-    private amountLabel: Text;
-    private costLabel: Text;
-    private pad: number;
-
-    public constructor(options: UpgradeButtonOptions) {
-        super();
-
-        const { width, height } = options;
-        const pad = 4;
-        this.pad = pad;
-
-        this.background = new Background({
-            tint: 0xee8d1f,
-            borderTint: 0xd47913,
-            width,
-            height,
-            pad,
-        });
-        this.addChild(this.background);
-
-        const textStyle = {
-            fill: 'white',
-            dropShadow: true,
-            dropShadowColor: 'black',
-            dropShadowDistance: 2,
-        };
-        this.buyLabel = new Text('BUY', TextUtil.createStyle(textStyle));
-        this.buyLabel.x = pad*4;
-        this.buyLabel.y = pad;
-        this.addChild(this.buyLabel);
-
-        this.amountLabel = new Text('', TextUtil.createStyle(textStyle));
-        this.setAmount('x?');
-        this.addChild(this.amountLabel);
-        this.amountLabel.y = pad;
-
-        this.costLabel = new Text('', TextUtil.createStyle(textStyle));
-        this.addChild(this.costLabel);
-        this.setCost('OOOOO');
-    }
-
-    public setCallback(callback: ()=>void): void {
-        this.background.interactive = true;
-        this.background.buttonMode = true;
-        this.background.removeAllListeners();
-        this.background.on('pointerdown', callback);
-    }
-
-    public setCost(costText: string): void {
-        this.costLabel.text = costText;
-        this.costLabel.x = this.pad*4;
-        this.costLabel.y = this.height - this.costLabel.height - this.pad;
-    }
-
-    public setAmount(amountText: string): void {
-        this.amountLabel.text = amountText;
-        this.amountLabel.x = this.width - this.amountLabel.width - this.pad*4;
-    }
-}
 
 class LockedBusinessCell extends Container {
     public background: Sprite;
@@ -124,7 +57,7 @@ class LockedBusinessCell extends Container {
 class UnlockedBusinessCell extends Container {
     public businessBackground: Background;
     public businessSprite: Sprite;
-    public upgradeButton: UpgradeButton;
+    public upgradeButton: BusinessUpgradeButton;
     public upgradeProgressBar: ProgressBar;
     public workProgressBar: ProgressBar;
     public timeToProfitLabel: Text;
@@ -171,7 +104,7 @@ class UnlockedBusinessCell extends Container {
         this.workProgressBar.x = height;
         this.addChild(this.workProgressBar);
 
-        this.upgradeButton = new UpgradeButton({
+        this.upgradeButton = new BusinessUpgradeButton({
             width: width - this.businessBackground.width - 128,
             height: height - this.workProgressBar.height - pad,
         });

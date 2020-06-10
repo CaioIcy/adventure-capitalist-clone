@@ -9,8 +9,6 @@ interface IManager {
 }
 
 export class ManagerConfig extends BaseConfig {
-    private config: any = {};
-
     public constructor() {
         super();
         this.config = {

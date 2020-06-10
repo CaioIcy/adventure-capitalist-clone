@@ -36,7 +36,7 @@ export class ProgressBar extends Container {
 
         this.label = new Text('', TextUtil.defaultStyle());
         this.addChild(this.label);
-        this.setText('TODO');
+        this.setText('OOOO');
     }
 
     public setProgress(progress: number): void {

@@ -40,9 +40,12 @@ export class App {
         const w = Math.min(window.innerWidth, window.innerHeight);
         const h = Math.max(window.innerWidth, window.innerHeight);
         const aspectRatio = w / h;
-        Window.WIDTH = aspectRatio * window.innerHeight;
-        Window.HEIGHT = window.innerHeight;
+        const height = window.innerHeight;
+        Window.WIDTH = aspectRatio * height;
+        Window.HEIGHT = height;
+        Window.SCALE = 1; // TODO
         this.app.renderer.resize(Window.WIDTH, Window.HEIGHT);
+        console.log('_w,h,ar=',w,h,aspectRatio);
         console.log('(w,h)=', Window.WIDTH, Window.HEIGHT);
     }
 

@@ -10,7 +10,6 @@ import { Button } from '../ui/component/Button';
 import { BuyAmountToggle, BuyAmountType } from '../ui/component/BuyAmountToggle';
 import { BusinessCell } from '../ui/component/BusinessCell';
 import { MainView } from '../ui/view/MainView';
-import { HeaderContainer } from '../ui/container/HeaderContainer';
 import { ConfigHolder } from '../config/ConfigHolder';
 import { StateHolder } from '../state/StateHolder';
 
@@ -25,13 +24,10 @@ export class MainController extends BaseController {
         this.configs = configs;
         this.states = states;
         this.view = new MainView();
-        this.view.header = new HeaderContainer();
     }
 
     protected onEnter() : void {
-        this.view.header.init();
-        this.addChild(this.view.header);
-
+        this.addChild(this.view);
         this.view.buyAmountToggle = new BuyAmountToggle(() => this.toggleBuyAmount());
         this.addChild(this.view.buyAmountToggle);
         this.view.buyAmountToggle.setText(this.buyAmountString());
@@ -51,14 +47,12 @@ export class MainController extends BaseController {
         this.view.scroll = new Scrollbox({
             boxWidth: Window.WIDTH,
             boxHeight: Window.HEIGHT - this.view.header.height,
-            scrollbarSize: 0 ,
-            // overflowX: 'hidden',
-            // overflowY: 'hidden',
+            scrollbarSize: 0,
         });
         this.view.scroll.y = y;
         this.addChild(this.view.scroll);
 
-        const x = Window.WIDTH * 0.5; // TODO ?
+        const x = Window.WIDTH * 0.5;
         const businessIDs = this.configs.business.getBusinessIDs();
         for(let i = 0; i < businessIDs.length; ++i) {
             const cell = new BusinessCell();
@@ -196,7 +190,7 @@ export class MainController extends BaseController {
     }
 
     private onWalletStateUpdate(): void {
-        this.view.header.setMoney(this.states.wallet.money);
+        this.view.setMoney(this.states.wallet.money);
     }
 
     private onManagerStateUpdate(): void {

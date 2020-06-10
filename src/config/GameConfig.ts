@@ -1,8 +1,6 @@
 import { BaseConfig } from './BaseConfig';
 
 export class GameConfig extends BaseConfig {
-    private config: any = {};
-
     public constructor() {
         super();
         this.config = {

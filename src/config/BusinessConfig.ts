@@ -1,12 +1,20 @@
 import { BaseConfig } from './BaseConfig';
 
-export class BusinessConfig extends BaseConfig {
-    private config: any = {};
+export class IBusiness {
+    name: string;
+    image: string;
+    autoUnlocked: boolean;
+    initialCost: number;
+    coefficient: number;
+    initialTime: number;
+    initialRevenue: number;
+}
 
+export class BusinessConfig extends BaseConfig {
     public constructor() {
         super();
         this.config = {
-            milestones: [25, 50, 100, 200, 300, 400], // TODO half all buildings on all 25... etc
+            milestones: [25, 50, 100, 200, 300, 400],
             businesses: {
                 'business-0': {
                     name: 'Lemonade Stand',
@@ -100,7 +108,7 @@ export class BusinessConfig extends BaseConfig {
         }
     }
 
-    public getBusinessConfig(id: string): any { // TODO interface
+    public getBusinessConfig(id: string): IBusiness {
         console.assert(this.isValidBusiness(id), 'invalid business id');
         return this.config.businesses[id];
     }
@@ -138,7 +146,7 @@ export class BusinessConfig extends BaseConfig {
 
     public getRevenue(id: string, currentAmount: number): number {
         const cfg = this.getBusinessConfig(id);
-        return cfg.initialRevenue * currentAmount; // TODO multiplier
+        return cfg.initialRevenue * currentAmount; // TODO multiplier?
     }
 
     public getProfit(id: string, currentAmount: number): number {
