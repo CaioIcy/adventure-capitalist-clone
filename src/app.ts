@@ -13,7 +13,7 @@ export class App {
 
     public constructor() {
         this.app = new Application({
-            backgroundColor: 0x726861,
+            backgroundColor: 0x7c8f8e,
             resolution: 1,
         });
         this.controllerStack = new ControllerStack(this.app.stage);
@@ -29,7 +29,7 @@ export class App {
 
         this.initConfigs();
         this.initLoader(() => {
-            console.log('completed loading');
+            //console.log('completed loading');
             this.initStates();
             this.controllerStack.push(new MainController(this.controllerStack, this.configs, this.states));
         });
@@ -41,16 +41,21 @@ export class App {
         const h = Math.max(window.innerWidth, window.innerHeight);
         const aspectRatio = w / h;
         const height = window.innerHeight;
-        Window.WIDTH = aspectRatio * height;
+        Window.WIDTH = Math.max(window.innerWidth, aspectRatio * height);
         Window.HEIGHT = height;
         this.app.renderer.resize(Window.WIDTH, Window.HEIGHT);
-        console.log('(w,h)=', Window.WIDTH, Window.HEIGHT);
+        //console.log('(w,h)=', Window.WIDTH, Window.HEIGHT);
     }
 
     private initLoader(completion: ()=>void): void {
         const loader = Loader.shared;
         loader.onComplete.add(completion);
         loader.onError.add(() => console.error('error loading'));
+
+        loader.pre((resource: any, next: any) => {
+            resource.crossOrigin = 'anonymous';
+            next();
+        });
 
         this.configs.business.loadImages((id, url) => {
             loader.add(id, url);
@@ -73,10 +78,11 @@ export class App {
         this.states = new StateHolder();
         this.states.init(this.configs);
         if (!this.states.game.hasBeenInitialized) {
-            console.log('initializing game with initial state');
+            //console.log('initializing game with initial state');
 
             for(const initialBusinessID of this.configs.business.getInitialBusinessIDs()) {
-                console.log('initialBusinessID');
+                //console.log('initialBusinessID');
+                //console.log(this.states.business);
                 this.states.business.unlockBusiness(initialBusinessID);
             }
             for(const initialManagerID of this.configs.manager.getInitialManagerIDs()) {

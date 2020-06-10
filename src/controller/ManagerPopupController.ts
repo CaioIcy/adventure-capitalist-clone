@@ -33,14 +33,14 @@ export class ManagerPopupController extends BaseController {
     }
 
     protected onExit() : void {
-        console.log('onExit');
+        //console.log('onExit');
     }
 
     private buy(): void {
         const cost = this.configs.manager.getCost(this.managerID);
         if(cost > this.states.wallet.money) {
             // TODO notify can't buy
-            console.log('not enough money');
+            //console.log('not enough money');
             return;
         }
 

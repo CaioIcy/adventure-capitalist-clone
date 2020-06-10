@@ -10,7 +10,7 @@ export class ManagerState extends BaseState {
     private config: ManagerConfig;
 
     public constructor(config: ManagerConfig) {
-        super();
+        super('manager');
         this.config = config;
     }
 

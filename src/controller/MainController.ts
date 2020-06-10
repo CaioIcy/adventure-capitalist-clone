@@ -5,6 +5,7 @@ import { ControllerStack } from './ControllerStack';
 import { ManagerPopupController } from './ManagerPopupController';
 import { OfflineProfitPopupController } from './OfflineProfitPopupController';
 import { Window } from '../util/Window';
+import { MoneyUtil } from '../util/MoneyUtil';
 import { TimeUtil } from '../util/TimeUtil';
 import { Button } from '../ui/component/Button';
 import { BuyAmountToggle, BuyAmountType } from '../ui/component/BuyAmountToggle';
@@ -42,7 +43,7 @@ export class MainController extends BaseController {
         this.states.manager.addObserverCallback(this, ()=>this.onManagerStateUpdate());
 
         const padding = 32;
-        console.log(this.view.header.height);
+        //console.log(this.view.header.height);
         let y = this.view.header.height;
         this.view.scroll = new Scrollbox({
             boxWidth: Window.WIDTH,
@@ -113,9 +114,13 @@ export class MainController extends BaseController {
             const profit = this.configs.business.getProfit(businessID, business.amount);
             const nextMilestone = this.configs.business.getNextMilestone(business.amount);
             const managerID = this.configs.manager.getManagerID(businessID);
-            cell.updateUnlocked(this.buyAmountString(), business.amount, nextMilestone, cost, profit, this.states.manager.hasUnlockedManager(managerID));
-
             const timeToProfit = this.configs.business.getTimeToProfit(businessID, business.amount);
+            const profitPerSecond = profit*(1/timeToProfit);
+            const profitText = (timeToProfit >= 0.6)
+                ? MoneyUtil.moneyToString(profit)
+                : `${MoneyUtil.moneyToString(profitPerSecond)}/sec`;
+            cell.updateUnlocked(this.buyAmountString(), business.amount, nextMilestone, cost, profitText, this.states.manager.hasUnlockedManager(managerID));
+
             cell.setTimeToProfit(timeToProfit);
 
             // TODO no need to update this, only setup once
@@ -175,7 +180,9 @@ export class MainController extends BaseController {
                 const profit = this.configs.business.getProfit(businessID, business.amount);
                 this.states.wallet.addMoneyDelta(profit);
 
-                cell.setProfitProgress(0);
+                if(timeToProfit >= 0.6) {
+                    cell.setProfitProgress(0);
+                }
                 cell.setTimeToProfit(timeToProfit);
             }
             else { // still working
@@ -217,11 +224,11 @@ export class MainController extends BaseController {
 
     private tryUnlockBusiness(cellIndex: number, businessID: string): void {
         console.assert(!this.states.business.hasUnlockedBusiness(businessID), 'already unlocked business');
-        console.log('tryUnlockBusiness=' + businessID);
+        //console.log('tryUnlockBusiness=' + businessID);
         const cost = this.configs.business.getCost(businessID, 0, 1);
         if(cost > this.states.wallet.money) {
             // TODO notify can't buy
-            console.log('not enough money');
+            //console.log('not enough money');
             return;
         }
 
@@ -246,14 +253,14 @@ export class MainController extends BaseController {
 
     private tryUpgradeBusiness(cellIndex: number, businessID: string): void {
         console.assert(this.states.business.hasUnlockedBusiness(businessID), 'needs unlocked business');
-        console.log('tryUpgradeBusiness=' + businessID);
+        //console.log('tryUpgradeBusiness=' + businessID);
 
         const buyAmount = this.buyAmount();
         const business = this.states.business.getBusiness(businessID);
         const cost = buyAmount * this.configs.business.getCost(businessID, business.amount, buyAmount);
         if(cost > this.states.wallet.money) {
             // TODO notify can't buy
-            console.log('not enough money');
+            //console.log('not enough money');
             return;
         }
 
@@ -344,9 +351,9 @@ export class MainController extends BaseController {
     }
 
     private addDebugButtons(): void {
-        return;
+        if(true){return;}
         const btn = new Button('reset', () => {
-            console.log('clear local storage');
+            //console.log('clear local storage');
             Ticker.shared.remove(this.update, this);
             window.localStorage.clear();
             window.location.reload();

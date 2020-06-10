@@ -8,6 +8,7 @@ export interface ProgressBarOptions {
 
 export class ProgressBar extends Container {
     private progress: Sprite;
+    private progressShine: Sprite;
     private label: Text;
 
     private pad: number = 2;
@@ -27,11 +28,19 @@ export class ProgressBar extends Container {
         this.addChild(bg);
 
         this.progress = new Sprite(Texture.WHITE);
-        this.progress.tint = 0x00FF00;
+        this.progress.tint = 0x9cd651;
         this.progress.x = this.pad;
         this.progress.y = this.pad;
         this.progress.height = height-this.pad*2;
         this.addChild(this.progress);
+
+        this.progressShine = new Sprite(Texture.WHITE);
+        this.progressShine.tint = 0xFFFFFF;
+        this.progressShine.alpha = 0.2;
+        this.progressShine.x = this.pad;
+        this.progressShine.y = this.pad;
+        this.progressShine.height = this.progress.height*0.33;
+        this.addChild(this.progressShine);
         this.setProgress(0.0);
 
         this.label = new Text('', TextUtil.defaultStyle());
@@ -40,7 +49,9 @@ export class ProgressBar extends Container {
     }
 
     public setProgress(progress: number): void {
-        this.progress.width = progress * (this.width - this.pad*2);
+        const width = progress * (this.width - this.pad*2);
+        this.progress.width = width;
+        this.progressShine.width = width;
     }
 
     public setText(text: string): void {

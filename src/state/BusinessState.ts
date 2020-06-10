@@ -11,11 +11,12 @@ export class BusinessState extends BaseState {
     private config: BusinessConfig;
 
     public constructor(config: BusinessConfig) {
-        super();
+        super('business');
         this.config = config;
     }
 
     protected initializeState(): void {
+        //console.log('initializeState business');
         const businesses: {[id: string]: IBusiness} = {};
         this.state = {
             businesses,

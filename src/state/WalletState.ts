@@ -2,7 +2,7 @@ import { BaseState } from './BaseState';
 
 export class WalletState extends BaseState {
     public constructor() {
-        super();
+        super('wallet');
     }
 
     protected initializeState(): void {

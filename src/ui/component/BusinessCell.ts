@@ -17,7 +17,7 @@ class LockedBusinessCell extends Container {
     public constructor() {
         super();
 
-        const width = 496;
+        const width = 416;
         const height = 128;
 
         this.background = new Background({
@@ -30,10 +30,10 @@ class LockedBusinessCell extends Container {
         this.addChild(this.background);
 
         this.businessSprite = new Sprite(Texture.WHITE);
+        this.businessSprite.width = 72;
+        this.businessSprite.height = 72;
         this.businessSprite.x += 32;
-        this.businessSprite.y += 16;
-        this.businessSprite.width = 96;
-        this.businessSprite.height = 96;
+        this.businessSprite.y = height*0.5 - this.businessSprite.height*0.5;
         this.addChild(this.businessSprite);
 
         this.businessNameLabel = new Text('', TextUtil.defaultStyle());
@@ -76,7 +76,7 @@ class UnlockedBusinessCell extends Container {
     public constructor() {
         super();
 
-        const width = 496;
+        const width = 416;
         const height = 128;
 
         const pad = 4;
@@ -85,7 +85,7 @@ class UnlockedBusinessCell extends Container {
         this.businessBackground = new Background({
             tint: 0x1d6bc4,
             borderTint: 0x08458a,
-            width: height - pad,
+            width: 96,
             height,
             pad
         });
@@ -107,10 +107,10 @@ class UnlockedBusinessCell extends Container {
         this.addChild(this.upgradeProgressBar);
 
         this.workProgressBar = new ProgressBar({
-            width: 352 - pad,
+            width: width - this.businessBackground.width - pad,
             height: 48,
         })
-        this.workProgressBar.x = height;
+        this.workProgressBar.x = this.businessBackground.width + pad;
         this.addChild(this.workProgressBar);
 
         this.upgradeButton = new BusinessUpgradeButton({
@@ -144,7 +144,7 @@ class UnlockedBusinessCell extends Container {
             width: 64,
             height: 64,
         });
-        this.managerCell.x = width;
+        this.managerCell.x = width + pad;
         this.managerCell.y = height * 0.5 - this.managerCell.height * 0.5;
         this.addChild(this.managerCell);
 
@@ -165,18 +165,18 @@ class UnlockedBusinessCell extends Container {
         this.upgradeButton.setCallback(upgradeAction);
     }
 
-    public update(buyAmountStr: string, currentAmount: number, nextMilestone: number, cost: number, profit: number, hasManager: boolean): void {
+    public update(buyAmountStr: string, currentAmount: number, nextMilestone: number, cost: number, profitText: string, hasManager: boolean): void {
         this.upgradeProgressBar.setText(`${currentAmount}/${nextMilestone}`);
         this.upgradeProgressBar.setProgress(currentAmount/nextMilestone);
 
         this.upgradeButton.setAmount(buyAmountStr)
         this.upgradeButton.setCost(MoneyUtil.moneyToString(cost));
-        this.setProfit(MoneyUtil.moneyToString(profit));
+        this.setProfit(profitText);
 
         this.managerCell.enableGreyscaleFilter(!hasManager);
     }
 
-    public setProfit(profitText: string): void {
+    private setProfit(profitText: string): void {
         this.workProgressBar.setText(profitText);
     }
 
@@ -212,9 +212,9 @@ export class BusinessCell extends Container {
         this.unlocked.setup(businessTexture, managerTexture, workAction, upgradeAction);
     }
 
-    public updateUnlocked(buyAmountStr: string, currentAmount: number, nextMilestone: number, cost: number, profit: number, hasManager: boolean): void {
+    public updateUnlocked(buyAmountStr: string, currentAmount: number, nextMilestone: number, cost: number, profitText: string, hasManager: boolean): void {
         console.assert(this.unlocked !== null, 'should be unlocked');
-        this.unlocked.update(buyAmountStr, currentAmount, nextMilestone, cost, profit, hasManager);
+        this.unlocked.update(buyAmountStr, currentAmount, nextMilestone, cost, profitText, hasManager);
     }
 
     public setTimeToProfit(ts: number): void {

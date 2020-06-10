@@ -4,9 +4,11 @@ export interface StateCallback {
 
 export abstract class BaseState {
     private observers : {[key: string]: StateCallback};
+    private tag: string;
     protected state : {[key: string]: any};
 
-    public constructor() {
+    public constructor(tag: string) {
+        this.tag = tag;
         this.state = {};
         this.observers = {};
         const loaded = this.load();
@@ -52,11 +54,11 @@ export abstract class BaseState {
     }
 
     private storageKey() : string {
-        return `state:${this.constructor.name}`;
+        return `state:${this.tag}`;
     }
 
     public debug() : void {
-        console.log(`DEBUG ${this.storageKey()}`);
-        console.log(this.state);
+        //console.log(`DEBUG ${this.storageKey()}`);
+        //console.log(this.state);
     }
 }

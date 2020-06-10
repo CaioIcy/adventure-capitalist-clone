@@ -5,6 +5,8 @@ const pathDist = path.resolve(__dirname, 'dist');
 module.exports = {
   entry: './src/app.ts',
   devtool: 'inline-source-map',
+  // mode: 'development',
+  mode: 'production',
   module: {
     rules: [
       {
