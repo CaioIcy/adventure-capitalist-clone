@@ -6,8 +6,8 @@ export class GameState extends BaseState {
     }
 
     protected initializeState(): void {
-        const initialized: boolean = false;
-        const lastTimestamp: number = -1;
+        const initialized = false;
+        const lastTimestamp = -1;
         this.state = {
             initialized,
             lastTimestamp,

@@ -1,4 +1,4 @@
-import { Application, Loader, settings, SCALE_MODES, ObservablePoint } from 'pixi.js';
+import { Application, Loader, settings, SCALE_MODES } from 'pixi.js';
 import { ConfigHolder } from './config/ConfigHolder';
 import { StateHolder } from './state/StateHolder';
 import { ControllerStack } from './controller/ControllerStack';
@@ -19,7 +19,7 @@ export class App {
         this.controllerStack = new ControllerStack(this.app.stage);
     }
 
-    public start() {
+    public start(): void {
         document.body.appendChild(this.app.view);
         settings.SCALE_MODE = SCALE_MODES.NEAREST;
         window.addEventListener('resize', () => {
@@ -35,7 +35,7 @@ export class App {
         });
     }
 
-    private resize() {
+    private resize(): void {
         // assuming portrait
         const w = Math.min(window.innerWidth, window.innerHeight);
         const h = Math.max(window.innerWidth, window.innerHeight);
@@ -46,7 +46,7 @@ export class App {
         console.log('(w,h)=', Window.WIDTH, Window.HEIGHT);
     }
 
-    private initLoader(completion: ()=>void) {
+    private initLoader(completion: ()=>void): void {
         const loader = Loader.shared;
         loader.onComplete.add(completion);
         loader.onError.add(() => console.error('error loading'));
@@ -63,12 +63,12 @@ export class App {
         });
     }
 
-    private initConfigs() {
+    private initConfigs(): void {
         this.configs = new ConfigHolder();
         this.configs.init();
     }
 
-    private initStates() {
+    private initStates(): void {
         this.states = new StateHolder();
         this.states.init(this.configs);
         if (!this.states.game.hasBeenInitialized) {

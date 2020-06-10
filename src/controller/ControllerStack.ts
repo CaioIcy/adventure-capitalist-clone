@@ -10,7 +10,7 @@ export class ControllerStack {
         this.stack = [];
     }
 
-    public push(controller: BaseController, keepVisible: boolean = false) {
+    public push(controller: BaseController, keepVisible = false) {
         if(!this.stackIsEmpty()) {
             this.stack[this.stack.length - 1].visible = keepVisible;
         }

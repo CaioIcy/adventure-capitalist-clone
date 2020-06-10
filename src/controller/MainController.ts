@@ -143,7 +143,7 @@ export class MainController extends BaseController {
     }
 
     private update() : void {
-        let cellIndex = 0;
+        const cellIndex = 0;
         const businessIDs = this.configs.business.getBusinessIDs();
 
         // manager auto-work setup
