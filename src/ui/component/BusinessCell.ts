@@ -1,12 +1,10 @@
 import { Container, Text, Sprite, Texture, filters } from 'pixi.js';
 import { ManagerCell } from './ManagerCell';
 import { ProgressBar } from './ProgressBar';
+import { Background } from './Background';
 import { TextUtil } from '../util/TextUtil';
 import { TimeUtil } from '../../util/TimeUtil';
 import { MoneyUtil } from '../../util/MoneyUtil';
-
-const BWIDTH = 496;
-const BHEIGHT = 128;
 
 interface UpgradeButtonOptions {
     width: number;
@@ -14,34 +12,47 @@ interface UpgradeButtonOptions {
 }
 
 class UpgradeButton extends Container {
-    private background: Sprite;
+    private background: Background;
     private buyLabel: Text;
     private amountLabel: Text;
     private costLabel: Text;
+    private pad: number;
 
     public constructor(options: UpgradeButtonOptions) {
         super();
 
         const { width, height } = options;
+        const pad = 4;
+        this.pad = pad;
 
-        this.width = width;
-        this.height = height;
-
-        this.background = new Sprite(Texture.WHITE);
-        this.background.width = width;
-        this.background.height = height;
-        this.background.tint = 0xf79b19;
+        this.background = new Background({
+            tint: 0xee8d1f,
+            borderTint: 0xd47913,
+            width,
+            height,
+            pad,
+        });
         this.addChild(this.background);
 
-        this.buyLabel = new Text('BUY', TextUtil.defaultStyle());
+        const textStyle = {
+            fill: 'white',
+            dropShadow: true,
+            dropShadowColor: 'black',
+            dropShadowDistance: 2,
+            // stroke: 'black',
+            // strokeThickness: 3,
+        };
+        this.buyLabel = new Text('BUY', TextUtil.createStyle(textStyle));
+        this.buyLabel.x = pad*4;
+        this.buyLabel.y = pad;
         this.addChild(this.buyLabel);
 
-        this.amountLabel = new Text('', TextUtil.defaultStyle());
-        this.addChild(this.amountLabel);
+        this.amountLabel = new Text('', TextUtil.createStyle(textStyle));
         this.setAmount('x?');
-        this.amountLabel.y = this.height - this.amountLabel.height;
+        this.addChild(this.amountLabel);
+        this.amountLabel.y = pad;
 
-        this.costLabel = new Text('', TextUtil.defaultStyle());
+        this.costLabel = new Text('', TextUtil.createStyle(textStyle));
         this.addChild(this.costLabel);
         this.setCost('OOOOO');
     }
@@ -55,13 +66,13 @@ class UpgradeButton extends Container {
 
     public setCost(costText: string): void {
         this.costLabel.text = costText;
-        this.costLabel.updateTransform();
-        this.costLabel.x = this.width - this.costLabel.width * 1.5; // TODO ?
-        this.costLabel.y = this.height - this.costLabel.height;
+        this.costLabel.x = this.pad*4;//this.width - this.costLabel.width * 1.5; // TODO ?
+        this.costLabel.y = this.height - this.costLabel.height - this.pad;
     }
 
     public setAmount(amountText: string): void {
         this.amountLabel.text = amountText;
+        this.amountLabel.x = this.width - this.amountLabel.width - this.pad*4;
     }
 }
 
@@ -74,10 +85,13 @@ class LockedBusinessCell extends Container {
     public constructor() {
         super();
 
+        const width = 496;
+        const height = 128;
+
         this.background = new Sprite(Texture.WHITE);
         this.background.tint = 0x918881;
-        this.background.width = BWIDTH;
-        this.background.height = BHEIGHT;
+        this.background.width = width;
+        this.background.height = height;
         this.addChild(this.background);
 
         this.businessSprite = new Sprite(Texture.WHITE);
@@ -88,11 +102,11 @@ class LockedBusinessCell extends Container {
         this.addChild(this.businessSprite);
 
         this.businessNameLabel = new Text('', TextUtil.defaultStyle());
-        this.businessNameLabel.x = BWIDTH/2;
+        this.businessNameLabel.x = width/2;
         this.addChild(this.businessNameLabel);
 
         this.unlockPriceLabel = new Text('', TextUtil.defaultStyle());
-        this.unlockPriceLabel.x = BWIDTH/2;
+        this.unlockPriceLabel.x = width/2;
         this.unlockPriceLabel.y += this.unlockPriceLabel.height;
         this.addChild(this.unlockPriceLabel);
     }
@@ -110,62 +124,93 @@ class LockedBusinessCell extends Container {
 }
 
 class UnlockedBusinessCell extends Container {
-    private background: Sprite;
+    public businessBackground: Background;
     public businessSprite: Sprite;
     public upgradeButton: UpgradeButton;
     public upgradeProgressBar: ProgressBar;
     public workProgressBar: ProgressBar;
     public timeToProfitLabel: Text;
     public managerCell: ManagerCell;
+    private __width: number;
+    private __height: number;
+    private pad: number;
 
     public constructor() {
         super();
 
-        this.width = BWIDTH;
-        this.height = BHEIGHT;
+        const width = 496;
+        const height = 128;
 
-        this.background = new Sprite(Texture.WHITE);
-        this.background.tint = 0xefefef;
-        this.background.width = BWIDTH;
-        this.background.height = BHEIGHT;
-        this.addChild(this.background);
+        this.__width = width;
+        this.__height = height;
 
+        const pad = 4;
+        this.pad = pad;
+
+        this.businessBackground = new Background({
+            tint: 0x1d6bc4,
+            borderTint: 0x08458a,
+            width: height - pad,
+            height,
+            pad
+        });
+        this.addChild(this.businessBackground);
+
+        const businessSize = Math.ceil(height*0.5);
         this.businessSprite = new Sprite(Texture.WHITE);
-        this.businessSprite.width = BHEIGHT;
-        this.businessSprite.height = BHEIGHT;
+        this.businessSprite.width = businessSize;
+        this.businessSprite.height = businessSize;
+        this.businessSprite.x = this.businessBackground.width * 0.5 - this.businessSprite.width*0.5;
+        this.businessSprite.y = this.businessBackground.height * 0.40 - this.businessSprite.height*0.5;
         this.addChild(this.businessSprite);
 
         this.upgradeProgressBar = new ProgressBar({
-            width: BHEIGHT,
+            width: this.businessBackground.width,
             height: 32,
         });
         this.upgradeProgressBar.y = this.height - this.upgradeProgressBar.height;
         this.addChild(this.upgradeProgressBar);
 
         this.workProgressBar = new ProgressBar({
-            width: 368,
+            width: 352 - pad,
             height: 48,
         })
-        this.workProgressBar.x = BHEIGHT;
+        this.workProgressBar.x = height;
         this.addChild(this.workProgressBar);
 
         this.upgradeButton = new UpgradeButton({
-            width: BWIDTH - this.businessSprite.width - 96,
-            height: BHEIGHT - this.workProgressBar.height,
+            width: width - this.businessBackground.width - 128,
+            height: height - this.workProgressBar.height - pad,
         });
         this.addChild(this.upgradeButton);
-        this.upgradeButton.x = this.businessSprite.width;
-        this.upgradeButton.y = this.workProgressBar.height;
+        this.upgradeButton.x = this.businessBackground.width + pad;
+        this.upgradeButton.y = this.workProgressBar.height + pad;
         this.upgradeButton.setCost('666');
+
+        const ttpBackground = new Background({
+            tint: 0x655d52,
+            darkTint: 0x655d52,
+            lightTint: 0x655d52,
+            borderTint: 0x373737,
+            width: this.workProgressBar.width - this.upgradeButton.width - pad,
+            height:this.upgradeButton.height - pad,
+            pad: 4,
+        });
+        this.addChild(ttpBackground);
+        ttpBackground.x = this.upgradeButton.x + this.upgradeButton.width + pad;
+        ttpBackground.y = this.workProgressBar.height + pad;
 
         this.timeToProfitLabel = new Text('', TextUtil.defaultStyle());
         this.addChild(this.timeToProfitLabel);
-        this.timeToProfitLabel.y = this.workProgressBar.height + (BHEIGHT - this.workProgressBar.height)*0.5 - this.timeToProfitLabel.height*0.5;
+        this.timeToProfitLabel.y = this.workProgressBar.height + (height - this.workProgressBar.height)*0.5 - this.timeToProfitLabel.height*0.5;
         this.setTimeToProfit('');
 
-        this.managerCell = new ManagerCell();
-        this.managerCell.x = BWIDTH;
-        this.managerCell.y = BHEIGHT * 0.5 - this.managerCell.height * 0.5;
+        this.managerCell = new ManagerCell({
+            width: 64,
+            height: 64,
+        });
+        this.managerCell.x = width;
+        this.managerCell.y = height * 0.5 - this.managerCell.height * 0.5;
         this.addChild(this.managerCell);
     }
 
@@ -198,7 +243,7 @@ class UnlockedBusinessCell extends Container {
 
     public setTimeToProfit(text: string): void {
         this.timeToProfitLabel.text = text;
-        this.timeToProfitLabel.x = BWIDTH - this.timeToProfitLabel.width - 16; // TODO
+        this.timeToProfitLabel.x = (this.workProgressBar.x + this.workProgressBar.width) - this.timeToProfitLabel.width - this.pad*2;
     }
 }
 

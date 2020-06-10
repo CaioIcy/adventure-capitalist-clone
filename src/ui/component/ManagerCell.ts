@@ -1,23 +1,35 @@
 import { Container, Sprite, Texture, filters } from 'pixi.js';
+import { Background } from './Background';
+
+export interface ManagerCellOptions {
+    width: number;
+    height: number;
+    pad?: number;
+}
 
 export class ManagerCell extends Container {
-    private background: Sprite;
+    private background: Background;
     private managerSprite: Sprite;
 
-    public constructor() {
+    public constructor(options: ManagerCellOptions) {
         super();
 
-        const width = 64;
-        const height = 64;
+        const { width, height } = options;
+        const pad = options.pad || 4;
 
-        this.background = new Sprite(Texture.WHITE);
-        this.background.width = width;
-        this.background.height = height;
+        this.background = new Background({
+            tint: 0x000000,
+            width,
+            height,
+            pad,
+        });
         this.addChild(this.background);
 
         this.managerSprite = new Sprite(Texture.WHITE);
-        this.managerSprite.width = width;
-        this.managerSprite.height = height;
+        this.managerSprite.x = pad;
+        this.managerSprite.y = pad;
+        this.managerSprite.width = width - 2*pad;
+        this.managerSprite.height = height - 2*pad;
         this.addChild(this.managerSprite);
     }
 

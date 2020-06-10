@@ -53,7 +53,7 @@ export class MainController extends BaseController {
 
         this.states.manager.addObserverCallback(this, ()=>this.onManagerStateUpdate());
 
-        const padding = 8;
+        const padding = 16;
         let y = this.view.header.height + padding;
         this.view.scroll = new Scrollbox({
             boxWidth: window.innerWidth * 0.95,

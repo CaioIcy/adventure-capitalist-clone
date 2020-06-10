@@ -34,9 +34,10 @@ export class ManagerPopupView extends Container {
         closeButton.x = width - closeButton.width;
         this.addChild(closeButton);
 
-        this.managerCell = new ManagerCell();
-        this.managerCell.width = 96;
-        this.managerCell.height = 96;
+        this.managerCell = new ManagerCell({
+            width: 96,
+            height: 96,
+        });
         this.managerCell.x = width*0.5 - this.managerCell.width*0.5;
         this.managerCell.y = pad;
         this.addChild(this.managerCell);

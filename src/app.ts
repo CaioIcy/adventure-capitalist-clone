@@ -12,7 +12,7 @@ export class App {
 
     public constructor() {
         this.app = new Application({
-            backgroundColor: 0x736b66,
+            backgroundColor: 0x726861,
             resolution: 1,
             // resolution: window.devicePixelRatio,
         });
@@ -37,7 +37,6 @@ export class App {
         loader.onComplete.add(completion);
         loader.onError.add(() => console.error('error loading'));
 
-        loader.add('Tabitha', 'assets/tabitha.ttf');
         this.configs.business.loadImages((id, url) => {
             loader.add(id, url);
         });

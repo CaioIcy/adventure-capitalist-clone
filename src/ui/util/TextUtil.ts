@@ -2,7 +2,10 @@ import { TextStyle } from 'pixi.js';
 
 export class TextUtil {
     private static DEFAULT_TEXT_STYLE: object|TextStyle = {
-        fontFamily: 'Tabitha',
+        fill: 'white',
+        dropShadow: true,
+        dropShadowColor: 'black',
+        dropShadowDistance: 2,
     };
 
     public static defaultStyle(): object|TextStyle {

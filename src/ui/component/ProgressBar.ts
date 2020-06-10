@@ -34,11 +34,7 @@ export class ProgressBar extends Container {
         this.addChild(this.progress);
         this.setProgress(0.0);
 
-        this.label = new Text('', TextUtil.createStyle({
-            fill: 'white',
-            stroke: 'black',
-            strokeThickness: 3,
-        }));
+        this.label = new Text('', TextUtil.defaultStyle());
         this.addChild(this.label);
         this.setText('TODO');
     }
