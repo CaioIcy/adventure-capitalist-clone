@@ -1,11 +1,13 @@
 import { Container, Text, Texture, Sprite } from 'pixi.js';
 import { ManagerCell } from '../component/ManagerCell';
+import { Background } from '../component/Background';
 import { Button } from '../component/Button';
 import { TextUtil } from '../util/TextUtil';
 
 export class ManagerPopupView extends Container {
     private managerCell: ManagerCell;
     private costLabel: Text;
+    private buyButton: Button;
 
     public buyAction: ()=>void;
     public closeAction: ()=>void;
@@ -20,10 +22,24 @@ export class ManagerPopupView extends Container {
         this.x = window.innerWidth * 0.5 - width * 0.5;
         this.y = window.innerHeight * 0.5 - height * 0.5;
 
-        const background = new Sprite(Texture.WHITE);
-        background.tint = 0xEFEFEF;
-        background.width = width;
-        background.height = height;
+        const overlay = new Sprite(Texture.WHITE);
+        overlay.tint = 0x000000;
+        overlay.alpha = 0.75;
+        overlay.x = -window.innerWidth*2;
+        overlay.y = -window.innerHeight*2;
+        overlay.width = window.innerWidth*4;
+        overlay.height = window.innerHeight*4;
+        this.addChild(overlay);
+
+        const background = new Background({
+            tint: 0x575757,
+            lightTint: 0x575757,
+            darkTint: 0x575757,
+            borderTint: 0x171717,
+            pad:4,
+            width,
+            height,
+        });
         this.addChild(background);
 
         const closeButton = new Button('X', ()=>{
@@ -43,25 +59,33 @@ export class ManagerPopupView extends Container {
         this.addChild(this.managerCell);
         this.managerCell.setTexture(managerTex);
 
-        // TODO only when not bought already
-        const buyButton = new Button('BUY', ()=>{
+        this.buyButton = new Button('HIRE', ()=>{
             if(this.buyAction) {
                 this.buyAction();
             }
         });
-        buyButton.x = width*0.5 - buyButton.width*0.5;
-        buyButton.y = height - pad;
-        this.addChild(buyButton);
+        this.buyButton.x = width*0.5 - this.buyButton.width*0.5;
+        this.buyButton.y = height - pad;
+        this.addChild(this.buyButton);
 
-        this.costLabel = new Text('', TextUtil.defaultStyle());
+        const hireLabel = new Text('Hire this manager?', TextUtil.defaultStyle());
+        this.addChild(hireLabel);
+        hireLabel.x = width*0.5 - hireLabel.width*0.5;
+        hireLabel.y = this.managerCell.y + this.managerCell.height + pad;
+
+        const descriptionLabel = new Text('A manager runs your business for you,\neven while you\'re gone!', TextUtil.defaultStyle());
+        this.addChild(descriptionLabel);
+        descriptionLabel.x = width*0.5 - descriptionLabel.width*0.5;
+        descriptionLabel.y = hireLabel.y + hireLabel.height + pad;
+
+        this.costLabel = new Text('OOOOO', TextUtil.defaultStyle());
         this.addChild(this.costLabel);
         this.setCost('OOOOO');
     }
 
     public setCost(costText: string): void {
         this.costLabel.text = costText;
-        this.costLabel.updateTransform();
-        this.costLabel.x = this.width*0.5 - this.costLabel.width * 0.5;
-        this.costLabel.y = this.height*0.5 - this.costLabel.height * 0.5;
+        this.costLabel.x = (560)*0.5 - this.costLabel.width * 0.5;
+        this.costLabel.y = this.buyButton.y - (2*this.costLabel.height);
     }
 }

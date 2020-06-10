@@ -1,4 +1,5 @@
 import { Container, Text, Sprite, Texture } from 'pixi.js';
+import { Background } from './Background';
 import { TextUtil } from '../util/TextUtil';
 
 export class Button extends Container {
@@ -8,11 +9,13 @@ export class Button extends Container {
         super();
 
         this.text = new Text(`[${label}]`, TextUtil.defaultStyle());
-        const background = new Sprite(Texture.WHITE);
-        background.width = this.width;
-        background.height = this.height;
 
+        const background = new Background({
+            width: this.text.width,
+            height: this.text.height,
+        });
         this.addChild(background);
+
         this.addChild(this.text);
 
         this.interactive = true;

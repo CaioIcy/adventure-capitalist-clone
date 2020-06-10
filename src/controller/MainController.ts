@@ -37,8 +37,10 @@ export class MainController extends BaseController {
         this.view.buyAmountToggle.x = window.innerWidth * 0.5 - this.view.buyAmountToggle.width*3;
 
         const btn = new Button('reset', () => {
-            console.log('clear local storage')
-            localStorage.clear();
+            console.log('clear local storage');
+            Ticker.shared.remove(this.update, this);
+            window.localStorage.clear();
+            window.location.reload();
         });
         this.addChild(btn);
 
@@ -124,7 +126,7 @@ export class MainController extends BaseController {
 
             // TODO no need to update this, only setup once
             cell.setManagerClickCallback(() => {
-                this.openManagerPopup(managerID);
+                this.tryOpenManagerPopup(managerID);
             });
         } else {
             // nothing to update on locked cell
@@ -132,6 +134,7 @@ export class MainController extends BaseController {
     }
 
     protected onExit() : void {
+        Ticker.shared.remove(this.update, this);
         this.states.wallet.removeObserverCallback(this);
         this.states.manager.removeObserverCallback(this);
     }
@@ -266,7 +269,10 @@ export class MainController extends BaseController {
         this.updateBusinessCell(cellIndex);
     }
 
-    private openManagerPopup(managerID: string): void {
+    private tryOpenManagerPopup(managerID: string): void {
+        if(this.states.manager.hasUnlockedManager(managerID)){
+            return;
+        }
         this.controllerStack.push(new ManagerPopupController(this.controllerStack, this.configs, this.states, managerID), true);
     }
 
@@ -314,7 +320,7 @@ export class MainController extends BaseController {
         const now = TimeUtil.nowS();
         const ts = this.states.game.getLastTimestamp();
         const secondsOffline = now - ts;
-        if(secondsOffline <= 0) { return; }
+        if(ts < 0 || secondsOffline <= 0) { return; }
 
         let sumTotalProfit = 0;
         const businessIDs = this.configs.business.getBusinessIDs();

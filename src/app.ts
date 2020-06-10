@@ -61,6 +61,7 @@ export class App {
             console.log('initializing game with initial state');
 
             for(const initialBusinessID of this.configs.business.getInitialBusinessIDs()) {
+                console.log('initialBusinessID');
                 this.states.business.unlockBusiness(initialBusinessID);
             }
             for(const initialManagerID of this.configs.manager.getInitialManagerIDs()) {
