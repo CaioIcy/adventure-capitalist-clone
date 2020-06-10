@@ -43,9 +43,7 @@ export class App {
         const height = window.innerHeight;
         Window.WIDTH = aspectRatio * height;
         Window.HEIGHT = height;
-        Window.SCALE = 1; // TODO
         this.app.renderer.resize(Window.WIDTH, Window.HEIGHT);
-        console.log('_w,h,ar=',w,h,aspectRatio);
         console.log('(w,h)=', Window.WIDTH, Window.HEIGHT);
     }
 

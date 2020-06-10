@@ -41,7 +41,7 @@ export class MainController extends BaseController {
 
         this.states.manager.addObserverCallback(this, ()=>this.onManagerStateUpdate());
 
-        const padding = 16;
+        const padding = 32;
         console.log(this.view.header.height);
         let y = this.view.header.height;
         this.view.scroll = new Scrollbox({
@@ -77,6 +77,7 @@ export class MainController extends BaseController {
             } else {
                 cell.setupLocked(businessTexture, cfg.name, this.configs.business.getCost(businessID, 0, 1), () => {
                     this.tryUnlockBusiness(i, businessID);
+                    cell.x = x - cell.width * 0.5;
                 });
             }
 

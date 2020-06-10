@@ -17,9 +17,6 @@ export class OfflineProfitPopupView extends Container {
         const height = Window.HEIGHT * 0.75;
         const pad = 48;
 
-        this.x = Window.WIDTH * 0.5 - width * 0.5;
-        this.y = Window.HEIGHT * 0.5 - height * 0.5;
-
         const overlay = new Sprite(Texture.WHITE);
         overlay.tint = 0x000000;
         overlay.alpha = 0.75;
@@ -77,6 +74,12 @@ export class OfflineProfitPopupView extends Container {
         collectButton.x = width*0.5 - collectButton.width*0.5;
         collectButton.y = height - pad;
         this.addChild(collectButton);
+
+        const scale = Window.scale(width, height);
+        this.scale.x = scale;
+        this.scale.y = scale;
+        this.x = Window.WIDTH * 0.5 - (width*scale) * 0.5;
+        this.y = Window.HEIGHT * 0.5 - (height*scale) * 0.5;
     }
 
     public setTimeOffline(timeOfflineStr: string) {

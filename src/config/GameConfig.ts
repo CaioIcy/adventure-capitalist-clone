@@ -4,7 +4,7 @@ export class GameConfig extends BaseConfig {
     public constructor() {
         super();
         this.config = {
-            secondsToShowOfflineProfit: 5,
+            secondsToShowOfflineProfit: 10,
         };
     }
 

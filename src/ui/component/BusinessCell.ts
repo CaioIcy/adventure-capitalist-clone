@@ -6,9 +6,10 @@ import { BusinessUpgradeButton } from './BusinessUpgradeButton';
 import { TextUtil } from '../util/TextUtil';
 import { TimeUtil } from '../../util/TimeUtil';
 import { MoneyUtil } from '../../util/MoneyUtil';
+import { Window } from '../../util/Window';
 
 class LockedBusinessCell extends Container {
-    public background: Sprite;
+    public background: Background;
     public businessSprite: Sprite;
     public businessNameLabel: Text;
     public unlockPriceLabel: Text;
@@ -19,10 +20,13 @@ class LockedBusinessCell extends Container {
         const width = 496;
         const height = 128;
 
-        this.background = new Sprite(Texture.WHITE);
-        this.background.tint = 0x918881;
-        this.background.width = width;
-        this.background.height = height;
+        this.background = new Background({
+            tint: 0x655d52,
+            borderTint: 0x373737,
+            pad: 4,
+            width,
+            height,
+        });
         this.addChild(this.background);
 
         this.businessSprite = new Sprite(Texture.WHITE);
@@ -33,13 +37,18 @@ class LockedBusinessCell extends Container {
         this.addChild(this.businessSprite);
 
         this.businessNameLabel = new Text('', TextUtil.defaultStyle());
-        this.businessNameLabel.x = width/2;
+        this.businessNameLabel.x = width/3;
+        this.businessNameLabel.y = 8;
         this.addChild(this.businessNameLabel);
 
         this.unlockPriceLabel = new Text('', TextUtil.defaultStyle());
-        this.unlockPriceLabel.x = width/2;
-        this.unlockPriceLabel.y += this.unlockPriceLabel.height;
+        this.unlockPriceLabel.x = width/3;
+        this.unlockPriceLabel.y = height - this.unlockPriceLabel.height - 8;
         this.addChild(this.unlockPriceLabel);
+
+        const scale = Window.scale(width+64, height);
+        this.scale.x = scale;
+        this.scale.y = scale;
     }
 
     public setup(tex: Texture, businessName: string, unlockPriceStr: string, action: ()=>void): void {
@@ -138,6 +147,10 @@ class UnlockedBusinessCell extends Container {
         this.managerCell.x = width;
         this.managerCell.y = height * 0.5 - this.managerCell.height * 0.5;
         this.addChild(this.managerCell);
+
+        const scale = Window.scale(width+64, height);
+        this.scale.x = scale;
+        this.scale.y = scale;
     }
 
     public setup(businessTexture: Texture, managerTexture: Texture, workAction: ()=>void, upgradeAction: ()=>void): void {
