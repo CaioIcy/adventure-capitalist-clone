@@ -3,7 +3,7 @@
 Adventure Capitalist is an idle business sim-game. The basic idea is to purchase a business, win capital from that business, upgrade the business and then purchase more businesses. In order to automate the process for a business, you can hire a manager for it.
 
 ## Play
-You can play it here: https://caioicy.github.io/adventure-capitalist-clone
+You can play it here: https://caioicy.github.io/adventure-capitalist-clone/dist
 
 ### Specifications
 
